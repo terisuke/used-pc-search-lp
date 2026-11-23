@@ -1,0 +1,214 @@
+{
+  "generated_at": "2026-11-23T04:20:00+09:00",
+  "source": "mock",
+  "items": [
+    {
+      "id": "mock-001",
+      "shop": "サンプル中古PC店 秋葉原",
+      "title": "パソコン工房風 RTX 3060 12GB搭載 デスクトップ 第12世代 i7",
+      "url": "https://example.com/used-pc/001",
+      "price_yen": 79800,
+      "gpu": "GeForce RTX 3060",
+      "gpu_vram_gb": 12,
+      "cpu": "Core i7-12700F",
+      "ram_gb": 32,
+      "storage": "SSD 1TB / NVMe",
+      "rank": "B",
+      "updated_at": "2026-11-23T04:20:00+09:00",
+      "factcheck": {
+        "http_status": 200,
+        "verdict": "verified",
+        "checked_at": "2026-11-23T04:21:00+09:00",
+        "issues": []
+      },
+      "history": {
+        "first_seen": "2026-11-22T18:00:00+09:00",
+        "last_seen": "2026-11-23T04:20:00+09:00",
+        "prev_price_yen": null,
+        "badge": null
+      }
+    },
+    {
+      "id": "mock-002",
+      "shop": "サンプル中古PC店 池袋",
+      "title": "RTX 3060 12GB / Ryzen 7 5700X / 32GB 中古デスクトップ",
+      "url": "https://example.com/used-pc/002",
+      "price_yen": 84980,
+      "gpu": "GeForce RTX 3060",
+      "gpu_vram_gb": 12,
+      "cpu": "Ryzen 7 5700X",
+      "ram_gb": 32,
+      "storage": "SSD 500GB",
+      "rank": "C",
+      "updated_at": "2026-11-23T04:20:00+09:00",
+      "factcheck": {
+        "http_status": 200,
+        "verdict": "verified",
+        "checked_at": "2026-11-23T04:21:00+09:00",
+        "issues": []
+      },
+      "history": {
+        "first_seen": "2026-11-21T10:00:00+09:00",
+        "last_seen": "2026-11-23T04:20:00+09:00",
+        "prev_price_yen": 89980,
+        "badge": "price_down"
+      }
+    },
+    {
+      "id": "mock-003",
+      "shop": "サンプル中古PC店 日本橋",
+      "title": "RTX 3060 12GB搭載 BTO 第13世代 i5 メモリ16GB",
+      "url": "https://example.com/used-pc/003",
+      "price_yen": 72980,
+      "gpu": "GeForce RTX 3060",
+      "gpu_vram_gb": 12,
+      "cpu": "Core i5-13400F",
+      "ram_gb": 16,
+      "storage": "SSD 1TB",
+      "rank": "C",
+      "updated_at": "2026-11-23T04:20:00+09:00",
+      "factcheck": {
+        "http_status": 200,
+        "verdict": "partial",
+        "checked_at": "2026-11-23T04:22:00+09:00",
+        "issues": ["ページのランク表記がDだった"]
+      },
+      "history": {
+        "first_seen": "2026-11-23T04:20:00+09:00",
+        "last_seen": "2026-11-23T04:20:00+09:00",
+        "prev_price_yen": null,
+        "badge": "new"
+      }
+    },
+    {
+      "id": "mock-004",
+      "shop": "サンプル中古PC店 福岡",
+      "title": "RTX 4060 Ti 16GB搭載 デスクトップ i7-13700F",
+      "url": "https://example.com/used-pc/004",
+      "price_yen": 109800,
+      "gpu": "GeForce RTX 4060 Ti",
+      "gpu_vram_gb": 16,
+      "cpu": "Core i7-13700F",
+      "ram_gb": 32,
+      "storage": "SSD 2TB / NVMe",
+      "rank": "A",
+      "updated_at": "2026-11-23T04:20:00+09:00",
+      "factcheck": {
+        "http_status": 200,
+        "verdict": "verified",
+        "checked_at": "2026-11-23T04:22:00+09:00",
+        "issues": []
+      },
+      "history": {
+        "first_seen": "2026-11-20T12:00:00+09:00",
+        "last_seen": "2026-11-23T04:20:00+09:00",
+        "prev_price_yen": null,
+        "badge": null
+      }
+    },
+    {
+      "id": "mock-005",
+      "shop": "サンプル中古PC店 札幌",
+      "title": "RTX 3060 12GB / i5-12400 / 16GB / SSD 500GB",
+      "url": "https://example.com/used-pc/005",
+      "price_yen": 67980,
+      "gpu": "GeForce RTX 3060",
+      "gpu_vram_gb": 12,
+      "cpu": "Core i5-12400F",
+      "ram_gb": 16,
+      "storage": "SSD 500GB",
+      "rank": "B",
+      "updated_at": "2026-11-23T04:20:00+09:00",
+      "factcheck": {
+        "http_status": 200,
+        "verdict": null,
+        "checked_at": null,
+        "issues": []
+      },
+      "history": {
+        "first_seen": "2026-11-23T02:00:00+09:00",
+        "last_seen": "2026-11-23T04:20:00+09:00",
+        "prev_price_yen": null,
+        "badge": "new"
+      }
+    },
+    {
+      "id": "mock-006",
+      "shop": "サンプル中古PC店 仙台",
+      "title": "RTX 3060 12GB搭載 デスクトップ Ryzen 5 5500",
+      "url": "https://example.com/used-pc/006",
+      "price_yen": 64980,
+      "gpu": "GeForce RTX 3060",
+      "gpu_vram_gb": 12,
+      "cpu": "Ryzen 5 5500",
+      "ram_gb": 16,
+      "storage": "SSD 256GB",
+      "rank": "C",
+      "updated_at": "2026-11-22T20:00:00+09:00",
+      "factcheck": {
+        "http_status": 404,
+        "verdict": null,
+        "checked_at": "2026-11-23T04:23:00+09:00",
+        "issues": []
+      },
+      "history": {
+        "first_seen": "2026-11-19T09:00:00+09:00",
+        "last_seen": "2026-11-22T20:00:00+09:00",
+        "prev_price_yen": null,
+        "badge": "sold_out"
+      }
+    },
+    {
+      "id": "mock-007",
+      "shop": "サンプル中古PC店 名古屋",
+      "title": "RX 7600 XT 16GB搭載 ミニタワー Ryzen 7 7700",
+      "url": "https://example.com/used-pc/007",
+      "price_yen": 98980,
+      "gpu": "Radeon RX 7600 XT",
+      "gpu_vram_gb": 16,
+      "cpu": "Ryzen 7 7700",
+      "ram_gb": 32,
+      "storage": "SSD 1TB",
+      "rank": "B",
+      "updated_at": "2026-11-23T04:20:00+09:00",
+      "factcheck": {
+        "http_status": null,
+        "verdict": null,
+        "checked_at": null,
+        "issues": []
+      },
+      "history": {
+        "first_seen": "2026-11-22T16:00:00+09:00",
+        "last_seen": "2026-11-23T04:20:00+09:00",
+        "prev_price_yen": null,
+        "badge": null
+      }
+    },
+    {
+      "id": "mock-008",
+      "shop": "サンプル中古PC店 広島",
+      "title": "RTX 3060 12GB搭載 デスクトップ 第11世代 i7 大容量SSD",
+      "url": "https://example.com/used-pc/008",
+      "price_yen": 78800,
+      "gpu": "GeForce RTX 3060",
+      "gpu_vram_gb": 12,
+      "cpu": "Core i7-11700",
+      "ram_gb": 32,
+      "storage": "SSD 2TB",
+      "rank": "C",
+      "updated_at": "2026-11-23T04:20:00+09:00",
+      "factcheck": {
+        "http_status": 200,
+        "verdict": "mismatch",
+        "checked_at": "2026-11-23T04:24:00+09:00",
+        "issues": ["実ページの価格が89,800円で取得値と乖離"]
+      },
+      "history": {
+        "first_seen": "2026-11-18T14:00:00+09:00",
+        "last_seen": "2026-11-23T04:20:00+09:00",
+        "prev_price_yen": null,
+        "badge": null
+      }
+    }
+  ]
+}

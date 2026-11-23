@@ -1,0 +1,12 @@
+{
+  "name": "used-pc-search-lp",
+  "version": "0.1.0",
+  "private": true,
+  "description": "ローカルLLM向け中古デスクトップPC候補の自動取得・比較LP",
+  "scripts": {
+    "vendor:css": "cp node_modules/@picocss/pico/css/pico.min.css assets/css/pico.min.css"
+  },
+  "dependencies": {
+    "@picocss/pico": "^2.0.6"
+  }
+}
