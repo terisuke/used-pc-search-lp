@@ -68,6 +68,39 @@ export function extractPriceCandidates(rawHtml, limit = 12) {
   return [...new Set(out)].slice(0, limit);
 }
 
+/* 商品個別ページのURL構造的シグナル(ポジティブ判定)。
+   deny-listは未知ショップに漏れるため、原則「商品URL形状を持つか、本文に商品マーカーがあるか」で残す */
+export function hasProductUrlSignal(url) {
+  try {
+    const u = new URL(url);
+    const p = u.pathname;
+    if (u.hostname === "item.rakuten.co.jp") return true; // 楽天の商品ホスト
+    if (/\/item\/[A-Za-z0-9_-]{4,}/.test(p)) return true;            // mercari / paypayフリマ / 等
+    if (/\/jp\/auction\/[A-Za-z0-9]+/.test(p)) return true;   // Yahooオークション(u123...形式含む)
+    if (/detail\.(php|aspx|html?)/i.test(p)) return true;             // EC-CUBE / .aspx 系商品詳細
+    if (/\/(products?|goods)\/(?!$)/i.test(p)) return true;           // /products/... /goods/...
+    if (/\/g\/g[A-Za-z0-9]+\/?/.test(p)) return true;                 // rakuten系 /g/gXXXX/
+    const keys = [...u.searchParams.keys()];
+    if (keys.some((k) => /^(product_id|item_code|itemcode|sku|pid|pr)$/i.test(k))) return true;
+    return false;
+  } catch {
+    return false;
+  }
+}
+
+/* 本文からの商品マーカー判定(JSON-LD Product / og:type=product)。
+   カートボタンは一覧グリッドにも出るため単独では採用しない(誤検知防止)。 */
+export function detectProductMarkers(rawHtml) {
+  const s = String(rawHtml || "").slice(0, 400_000);
+  const reasons = [];
+  if (/"@type"\s*:\s*"?(Product|ProductModel)"?/i.test(s)) reasons.push("jsonld-product");
+  if (/property=["']og:type["'][^>]*content=["']product["']/i.test(s) ||
+      /content=["']product["'][^>]*property=["']og:type["']/i.test(s)) reasons.push("og-product");
+  if (/カートに入れる|カートに追加|買い物かごに入れる|購入する/.test(s)) reasons.push("cart-cta");
+  const isProduct = reasons.includes("jsonld-product") || reasons.includes("og-product");
+  return { isProduct, reasons };
+}
+
 /* 差分badge: 死リンクをNEW扱いしない(404判定を優先) */
 export function diffBadge(prev, item) {
   if (item.factcheck.http_status === 404) return "sold_out";

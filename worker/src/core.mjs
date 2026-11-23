@@ -38,6 +38,35 @@ export function isListingPage(url) {
   }
 }
 
+export function hasProductUrlSignal(url) {
+  try {
+    const u = new URL(url);
+    const p = u.pathname;
+    if (u.hostname === "item.rakuten.co.jp") return true;
+    if (/\/item\/[A-Za-z0-9_-]{4,}/.test(p)) return true;
+    if (/\/jp\/auction\/[A-Za-z0-9]+/.test(p)) return true;
+    if (/detail\.(php|aspx|html?)/i.test(p)) return true;
+    if (/\/(products?|goods)\/(?!$)/i.test(p)) return true;
+    if (/\/g\/g[A-Za-z0-9]+\/?/.test(p)) return true;
+    const keys = [...u.searchParams.keys()];
+    if (keys.some((k) => /^(product_id|item_code|itemcode|sku|pid|pr)$/i.test(k))) return true;
+    return false;
+  } catch {
+    return false;
+  }
+}
+
+export function detectProductMarkers(rawHtml) {
+  const s = String(rawHtml || "").slice(0, 400_000);
+  const reasons = [];
+  if (/"@type"\s*:\s*"?(Product|ProductModel)"?/i.test(s)) reasons.push("jsonld-product");
+  if (/property=["']og:type["'][^>]*content=["']product["']/i.test(s) ||
+      /content=["']product["'][^>]*property=["']og:type["']/i.test(s)) reasons.push("og-product");
+  if (/カートに入れる|カートに追加|買い物かごに入れる|購入する/.test(s)) reasons.push("cart-cta");
+  const isProduct = reasons.includes("jsonld-product") || reasons.includes("og-product");
+  return { isProduct, reasons };
+}
+
 async function perplexitySearch(env, query) {
   const res = await fetch("https://api.perplexity.ai/search", {
     method: "POST",
@@ -195,7 +224,25 @@ export async function handleSearch(env, body) {
         factcheck: { http_status: null, verdict: null, checked_at: null, issues: [] },
       });
     }
-    const top = candidates.slice(0, 8);
+    const top0 = candidates.slice(0, 10);
+    /* 商品ページ確認: URLシグナルが無い候補は本文スニフでJSON-LD/og Productを要求 */
+    const sniffs = await Promise.all(top0.map(async (it) => {
+      if (hasProductUrlSignal(it.url)) return true;
+      try {
+        const res = await fetch(it.url, {
+          headers: { "User-Agent": UA, "Accept-Language": "ja" },
+          redirect: "follow",
+          signal: AbortSignal.timeout(10_000),
+        });
+        if (!res.ok) return false;
+        const buf = await res.arrayBuffer().then((b) => b.slice(0, 250_000));
+        const raw = new TextDecoder("utf-8", { fatal: false }).decode(buf);
+        return detectProductMarkers(raw).isProduct;
+      } catch {
+        return false;
+      }
+    }));
+    const top = top0.filter((_, i) => sniffs[i]).slice(0, 8);
     const statuses = await Promise.all(top.map((it) => httpStatus(it.url)));
     top.forEach((it, i) => { it.factcheck.http_status = statuses[i]; });
     const live = top.filter((it) => it.factcheck.http_status !== 404);
