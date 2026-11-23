@@ -1,124 +1,60 @@
 {
-  "generated_at": "2026-11-23T04:20:00+09:00",
-  "source": "mock",
+  "generated_at": "2026-11-23T05:09:49.872Z",
+  "source": "perplexity-search+gemini",
+  "queries": [
+    "中古 デスクトップPC RTX 3060 12GB 搭載 価格",
+    "中古パソコン RTX 3060 12GB 中古 デスクトップ",
+    "中古 デスクトップPC VRAM 12GB以上 グラボ搭載"
+  ],
+  "counts": {
+    "found": 10,
+    "live": 10,
+    "kept": 8,
+    "verified": 0
+  },
   "items": [
     {
-      "id": "mock-001",
-      "shop": "サンプル中古PC店 秋葉原",
-      "title": "パソコン工房風 RTX 3060 12GB搭載 デスクトップ 第12世代 i7",
-      "url": "https://example.com/used-pc/001",
-      "price_yen": 79800,
-      "gpu": "GeForce RTX 3060",
+      "id": "e9b2c13df14e",
+      "shop": "メルカリ",
+      "title": "なるみん様専用 デスクトップパソコン RTX3060 12GB - メルカリ",
+      "url": "https://jp.mercari.com/item/m14763685413",
+      "price_yen": 89000,
+      "gpu": "RTX 3060",
       "gpu_vram_gb": 12,
-      "cpu": "Core i7-12700F",
+      "cpu": "i5-12600",
       "ram_gb": 32,
-      "storage": "SSD 1TB / NVMe",
-      "rank": "B",
-      "updated_at": "2026-11-23T04:20:00+09:00",
-      "factcheck": {
-        "http_status": 200,
-        "verdict": "verified",
-        "checked_at": "2026-11-23T04:21:00+09:00",
-        "issues": []
-      },
-      "history": {
-        "first_seen": "2026-11-22T18:00:00+09:00",
-        "last_seen": "2026-11-23T04:20:00+09:00",
-        "prev_price_yen": null,
-        "badge": null
-      }
-    },
-    {
-      "id": "mock-002",
-      "shop": "サンプル中古PC店 池袋",
-      "title": "RTX 3060 12GB / Ryzen 7 5700X / 32GB 中古デスクトップ",
-      "url": "https://example.com/used-pc/002",
-      "price_yen": 84980,
-      "gpu": "GeForce RTX 3060",
-      "gpu_vram_gb": 12,
-      "cpu": "Ryzen 7 5700X",
-      "ram_gb": 32,
-      "storage": "SSD 500GB",
-      "rank": "C",
-      "updated_at": "2026-11-23T04:20:00+09:00",
-      "factcheck": {
-        "http_status": 200,
-        "verdict": "verified",
-        "checked_at": "2026-11-23T04:21:00+09:00",
-        "issues": []
-      },
-      "history": {
-        "first_seen": "2026-11-21T10:00:00+09:00",
-        "last_seen": "2026-11-23T04:20:00+09:00",
-        "prev_price_yen": 89980,
-        "badge": "price_down"
-      }
-    },
-    {
-      "id": "mock-003",
-      "shop": "サンプル中古PC店 日本橋",
-      "title": "RTX 3060 12GB搭載 BTO 第13世代 i5 メモリ16GB",
-      "url": "https://example.com/used-pc/003",
-      "price_yen": 72980,
-      "gpu": "GeForce RTX 3060",
-      "gpu_vram_gb": 12,
-      "cpu": "Core i5-13400F",
-      "ram_gb": 16,
-      "storage": "SSD 1TB",
-      "rank": "C",
-      "updated_at": "2026-11-23T04:20:00+09:00",
+      "storage": null,
+      "rank": null,
+      "updated_at": "2026-11-19",
       "factcheck": {
         "http_status": 200,
         "verdict": "partial",
-        "checked_at": "2026-11-23T04:22:00+09:00",
-        "issues": ["ページのランク表記がDだった"]
+        "checked_at": "2026-11-23T05:10:41.866Z",
+        "issues": [
+          "商品ページの価格が確認できません",
+          "CPUやメモリ等の詳細スペックが確認できません"
+        ]
       },
       "history": {
-        "first_seen": "2026-11-23T04:20:00+09:00",
-        "last_seen": "2026-11-23T04:20:00+09:00",
-        "prev_price_yen": null,
-        "badge": "new"
-      }
-    },
-    {
-      "id": "mock-004",
-      "shop": "サンプル中古PC店 福岡",
-      "title": "RTX 4060 Ti 16GB搭載 デスクトップ i7-13700F",
-      "url": "https://example.com/used-pc/004",
-      "price_yen": 109800,
-      "gpu": "GeForce RTX 4060 Ti",
-      "gpu_vram_gb": 16,
-      "cpu": "Core i7-13700F",
-      "ram_gb": 32,
-      "storage": "SSD 2TB / NVMe",
-      "rank": "A",
-      "updated_at": "2026-11-23T04:20:00+09:00",
-      "factcheck": {
-        "http_status": 200,
-        "verdict": "verified",
-        "checked_at": "2026-11-23T04:22:00+09:00",
-        "issues": []
-      },
-      "history": {
-        "first_seen": "2026-11-20T12:00:00+09:00",
-        "last_seen": "2026-11-23T04:20:00+09:00",
-        "prev_price_yen": null,
+        "first_seen": "2026-11-23T04:49:12.604Z",
+        "last_seen": "2026-11-23T05:09:49.872Z",
+        "prev_price_yen": 89000,
         "badge": null
       }
     },
     {
-      "id": "mock-005",
-      "shop": "サンプル中古PC店 札幌",
-      "title": "RTX 3060 12GB / i5-12400 / 16GB / SSD 500GB",
-      "url": "https://example.com/used-pc/005",
-      "price_yen": 67980,
+      "id": "e7af51786606",
+      "shop": "Yahoo!フリマ",
+      "title": "連休特価 AI画像音楽生成に最適 RTX3060 VRAM12GB搭載 ゲーミングPC｜Yahoo!フリマ（旧PayPayフリマ）",
+      "url": "https://paypayfleamarket.yahoo.co.jp/item/z726344624",
+      "price_yen": null,
       "gpu": "GeForce RTX 3060",
       "gpu_vram_gb": 12,
-      "cpu": "Core i5-12400F",
-      "ram_gb": 16,
-      "storage": "SSD 500GB",
-      "rank": "B",
-      "updated_at": "2026-11-23T04:20:00+09:00",
+      "cpu": "Core i5-11400",
+      "ram_gb": 32,
+      "storage": "約1.38TB",
+      "rank": null,
+      "updated_at": "2026-11-21",
       "factcheck": {
         "http_status": 200,
         "verdict": null,
@@ -126,88 +62,166 @@
         "issues": []
       },
       "history": {
-        "first_seen": "2026-11-23T02:00:00+09:00",
-        "last_seen": "2026-11-23T04:20:00+09:00",
+        "first_seen": "2026-11-23T04:49:12.604Z",
+        "last_seen": "2026-11-23T05:09:49.872Z",
         "prev_price_yen": null,
-        "badge": "new"
+        "badge": null
       }
     },
     {
-      "id": "mock-006",
-      "shop": "サンプル中古PC店 仙台",
-      "title": "RTX 3060 12GB搭載 デスクトップ Ryzen 5 5500",
-      "url": "https://example.com/used-pc/006",
-      "price_yen": 64980,
-      "gpu": "GeForce RTX 3060",
-      "gpu_vram_gb": 12,
-      "cpu": "Ryzen 5 5500",
-      "ram_gb": 16,
-      "storage": "SSD 256GB",
-      "rank": "C",
-      "updated_at": "2026-11-22T20:00:00+09:00",
-      "factcheck": {
-        "http_status": 404,
-        "verdict": null,
-        "checked_at": "2026-11-23T04:23:00+09:00",
-        "issues": []
-      },
-      "history": {
-        "first_seen": "2026-11-19T09:00:00+09:00",
-        "last_seen": "2026-11-22T20:00:00+09:00",
-        "prev_price_yen": null,
-        "badge": "sold_out"
-      }
-    },
-    {
-      "id": "mock-007",
-      "shop": "サンプル中古PC店 名古屋",
-      "title": "RX 7600 XT 16GB搭載 ミニタワー Ryzen 7 7700",
-      "url": "https://example.com/used-pc/007",
-      "price_yen": 98980,
-      "gpu": "Radeon RX 7600 XT",
-      "gpu_vram_gb": 16,
-      "cpu": "Ryzen 7 7700",
+      "id": "29462245dfd3",
+      "shop": "ショップ・インバース楽天市場店",
+      "title": "【楽天市場】【20%OFFクーポン】中古 FRONTIER BTOパソコン FRGXB660/WS15/NTK Core i5 12400F 第12世代 メモリ32GB SSD1TB グラボ ゲーミング NVIDIA GeForce RTX",
+      "url": "https://item.rakuten.co.jp/shop-inverse/80ys0008942/?variantId=80YS0008942",
+      "price_yen": null,
+      "gpu": "GeForce RTX 3060 Ti",
+      "gpu_vram_gb": null,
+      "cpu": "Core i5 12400F",
       "ram_gb": 32,
-      "storage": "SSD 1TB",
+      "storage": "SSD1TB",
       "rank": "B",
-      "updated_at": "2026-11-23T04:20:00+09:00",
+      "updated_at": "2026-11-21",
       "factcheck": {
-        "http_status": null,
+        "http_status": 200,
         "verdict": null,
         "checked_at": null,
         "issues": []
       },
       "history": {
-        "first_seen": "2026-11-22T16:00:00+09:00",
-        "last_seen": "2026-11-23T04:20:00+09:00",
+        "first_seen": "2026-11-23T05:09:49.872Z",
+        "last_seen": "2026-11-23T05:09:49.872Z",
         "prev_price_yen": null,
+        "badge": "new"
+      }
+    },
+    {
+      "id": "0fd348ebac39",
+      "shop": "pc-koubou.jp",
+      "title": "〔中古〕BTO DeskPC インテル® Core™ Ultra 7 プロセッサー ...",
+      "url": "https://www.pc-koubou.jp/products/detail.php?product_id=1205250",
+      "price_yen": null,
+      "gpu": null,
+      "gpu_vram_gb": null,
+      "cpu": null,
+      "ram_gb": null,
+      "storage": null,
+      "rank": null,
+      "updated_at": "2026-11-21",
+      "factcheck": {
+        "http_status": 200,
+        "verdict": null,
+        "checked_at": null,
+        "issues": []
+      },
+      "history": {
+        "first_seen": "2026-11-23T04:49:12.604Z",
+        "last_seen": "2026-11-23T05:09:49.872Z",
+        "prev_price_yen": 239980,
         "badge": null
       }
     },
     {
-      "id": "mock-008",
-      "shop": "サンプル中古PC店 広島",
-      "title": "RTX 3060 12GB搭載 デスクトップ 第11世代 i7 大容量SSD",
-      "url": "https://example.com/used-pc/008",
-      "price_yen": 78800,
-      "gpu": "GeForce RTX 3060",
-      "gpu_vram_gb": 12,
-      "cpu": "Core i7-11700",
-      "ram_gb": 32,
-      "storage": "SSD 2TB",
-      "rank": "C",
-      "updated_at": "2026-11-23T04:20:00+09:00",
+      "id": "02fb6d731844",
+      "shop": "jawa.gg",
+      "title": "Nvidia 12GB VRAM Gaming PCs built by gamers - Jawa",
+      "url": "https://www.jawa.gg/shop/full-systems/12gb-gaming-pcs-nvidia~24986f-54c301-7fa58",
+      "price_yen": null,
+      "gpu": null,
+      "gpu_vram_gb": null,
+      "cpu": null,
+      "ram_gb": null,
+      "storage": null,
+      "rank": null,
+      "updated_at": "2026-11-21",
       "factcheck": {
-        "http_status": 200,
-        "verdict": "mismatch",
-        "checked_at": "2026-11-23T04:24:00+09:00",
-        "issues": ["実ページの価格が89,800円で取得値と乖離"]
+        "http_status": 403,
+        "verdict": null,
+        "checked_at": null,
+        "issues": []
       },
       "history": {
-        "first_seen": "2026-11-18T14:00:00+09:00",
-        "last_seen": "2026-11-23T04:20:00+09:00",
+        "first_seen": "2026-11-23T05:09:49.872Z",
+        "last_seen": "2026-11-23T05:09:49.872Z",
         "prev_price_yen": null,
-        "badge": null
+        "badge": "new"
+      }
+    },
+    {
+      "id": "2546acfedeb0",
+      "shop": "jawa.gg",
+      "title": "12GB VRAM Gaming PCs built by gamers - jawa.gg",
+      "url": "https://www.jawa.gg/shop/full-systems/12gb-gaming-pcs~54c301-7fa58",
+      "price_yen": null,
+      "gpu": null,
+      "gpu_vram_gb": null,
+      "cpu": null,
+      "ram_gb": null,
+      "storage": null,
+      "rank": null,
+      "updated_at": "2026-11-06",
+      "factcheck": {
+        "http_status": 403,
+        "verdict": null,
+        "checked_at": null,
+        "issues": []
+      },
+      "history": {
+        "first_seen": "2026-11-23T05:09:49.872Z",
+        "last_seen": "2026-11-23T05:09:49.872Z",
+        "prev_price_yen": null,
+        "badge": "new"
+      }
+    },
+    {
+      "id": "28e3a4aa6571",
+      "shop": "Jawa",
+      "title": "Intel 12GB VRAM Gaming PCs built by gamers - Jawa",
+      "url": "https://www.jawa.gg/shop/full-systems/12gb-gaming-pcs-intel~54c301-79b97f-7fa58",
+      "price_yen": null,
+      "gpu": null,
+      "gpu_vram_gb": null,
+      "cpu": null,
+      "ram_gb": null,
+      "storage": null,
+      "rank": null,
+      "updated_at": "2026-11-11",
+      "factcheck": {
+        "http_status": 403,
+        "verdict": null,
+        "checked_at": null,
+        "issues": []
+      },
+      "history": {
+        "first_seen": "2026-11-23T05:09:49.872Z",
+        "last_seen": "2026-11-23T05:09:49.872Z",
+        "prev_price_yen": null,
+        "badge": "new"
+      }
+    },
+    {
+      "id": "fccc2ebf9da1",
+      "shop": "fril.jp",
+      "title": "hp（デスクトップ型PC）のフリマアイテム一覧",
+      "url": "https://fril.jp/brand/5603/category/677/keyword/3044",
+      "price_yen": null,
+      "gpu": null,
+      "gpu_vram_gb": null,
+      "cpu": null,
+      "ram_gb": null,
+      "storage": null,
+      "rank": null,
+      "updated_at": "2026-01-19",
+      "factcheck": {
+        "http_status": 200,
+        "verdict": null,
+        "checked_at": null,
+        "issues": []
+      },
+      "history": {
+        "first_seen": "2026-11-23T05:09:49.872Z",
+        "last_seen": "2026-11-23T05:09:49.872Z",
+        "prev_price_yen": null,
+        "badge": "new"
       }
     }
   ]
