@@ -242,6 +242,7 @@ async function verifyOne(item) {
           cpu: item.cpu, ram_gb: item.ram_gb, storage: item.storage, rank: item.rank,
         })}\n\nページ本文中の価格表記候補(スクリプト内JSON含むから収集): ${page.priceCandidates.join(" / ") || "(なし)"}\n\nページ本文:\n${page.text.slice(0, 12_000)}\n\n` +
         "page_price_yen は本文または価格候補から判断(税込優先、ない場合はnull)。候補の価格がnullで本文に価格がある場合は必ずpage_price_yenに入れる。" +
+        "重要: 候補の項目がnull(未取得)の場合は『不一致』としない(情報不足としてpartial寄りに扱う)。乖離の判定は、候補に値があり本文と矛盾する場合のみ。" +
         "判定: verified=主要項目(価格/GPU/メモリ)が一致 / partial=一部不一致または確認不能 " +
         "/ mismatch=重大な乖離または売り切れ・別商品。issuesは日本語で簡潔に(最大5件)。",
     }],
