@@ -352,7 +352,7 @@
           price: Number(fd.get("rt-price")) || null,
           free: fd.get("rt-free") || "",
         }),
-        signal: AbortSignal.timeout(60_000),
+        signal: AbortSignal.timeout(90_000),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
@@ -365,7 +365,8 @@
       $("rt-restore").hidden = false;
       els.generatedAt.textContent = `リアルタイム(${fmtDate(data.generated_at)})`;
       render();
-      progress.textContent = `リアルタイム検索完了: ${state.items.length} 件。「定期データに戻す」で通常表示に復帰できます。`;
+      progress.textContent = `リアルタイム検索完了: ${state.items.length} 件。上位行から順にスペック照合中…`;
+      lazyVerifyTop(5, progress);
     } catch (err) {
       errorBox.hidden = false;
       errorBox.textContent = `リアルタイム検索に失敗しました: ${err.message}。少し待って再試行してください。`;
@@ -374,6 +375,41 @@
       if (WORKER_URL) els.rtSubmit.disabled = false;
     }
   }
+
+  /* リアルタイム結果の上位数行を裏で照合し、価格・ステータスを補完(要件4.6の非同期ファクトチェック) */
+  async function lazyVerifyTop(n, progressEl) {
+    const targets = state.items
+      .filter((it) => it.factcheck && it.factcheck.http_status === 200 && it.url)
+      .slice(0, n);
+    let done = 0;
+    for (const it of targets) {
+      try {
+        const res = await fetch(`${WORKER_URL}/verify`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url: it.url }),
+          signal: AbortSignal.timeout(90_000),
+        });
+        if (res.ok) {
+          const out = await res.json();
+          if (out.factcheck) it.factcheck = { ...it.factcheck, ...out.factcheck };
+          if (out.specs) Object.assign(it, pickDefined(out.specs));
+          if (it.price_yen == null && out.factcheck?.page_price_yen != null) {
+            it.price_yen = out.factcheck.page_price_yen;
+            it.factcheck.price_filled_from_page = true;
+          }
+        }
+      } catch {
+        /* 個別照合の失敗は無視(次サイクルで補完) */
+      }
+      done++;
+      if (progressEl) progressEl.textContent = `リアルタイム検索完了: ${state.items.length} 件。照合 ${done}/${targets.length}…`;
+      render();
+    }
+    if (progressEl) progressEl.textContent = `リアルタイム検索完了: ${state.items.length} 件(照合 ${done} 件)。「定期データに戻す」で復帰できます。`;
+  }
+
+  const pickDefined = (o) => Object.fromEntries(Object.entries(o || {}).filter(([, v]) => v != null));
 
   function restoreAuto() {
     if (!state.autoItems) return;
