@@ -5,7 +5,8 @@
   "description": "ローカルLLM向け中古デスクトップPC候補の自動取得・比較LP",
   "scripts": {
     "vendor:css": "cp node_modules/@picocss/pico/css/pico.min.css assets/css/pico.min.css",
-    "ingest": "node scripts/ingest.mjs"
+    "ingest": "node scripts/ingest.mjs",
+    "test": "node --test tests/*.test.mjs"
   },
   "dependencies": {
     "@picocss/pico": "^2.0.6",

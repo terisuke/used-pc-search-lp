@@ -7,6 +7,7 @@ import { createHash } from "node:crypto";
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import path from "node:path";
 import { z } from "zod";
+import { isListingPage, canonUrl, extractPriceCandidates, diffBadge } from "./lib/filters.mjs";
 
 const ROOT = new URL("..", import.meta.url).pathname;
 const CFG = JSON.parse(await readFile(path.join(ROOT, "config/conditions.json"), "utf8"));
@@ -14,23 +15,6 @@ const UA = "used-pc-search-lp/0.1 (+https://github.com/terisuke/used-pc-search-l
 const PERPLEXITY_KEY = process.env.PERPLEXITY_API_KEY;
 const GEMINI_KEY = process.env.GEMINI_API_KEY;
 const GEMINI_MODEL = process.env.GEMINI_MODEL || CFG.gemini_model || "gemini-flash-latest";
-const BLOCK_HOSTS = [
-  "youtube.com", "x.com", "twitter.com", "facebook.com", "instagram.com",
-  "wikipedia.org", "note.com", "hatenablog.com", "qiita.com", "zenn.dev",
-];
-// 一覧・検索ページ(商品ページでない)を落とす
-const isListingPage = (url) => {
-  let u;
-  try { u = new URL(url); } catch { return true; }
-  const h = u.hostname.replace(/^www\./, "");
-  if (h === "search.rakuten.co.jp") return true;
-  if (h.endsWith("kakaku.com") && /^\/used\//.test(u.pathname)) return true;
-  const p = u.pathname;
-  if (/(^|\/)(search|closedsearch)(\/|$)/.test(p)) return true;
-  if (/\/view\/category\//.test(p)) return true;
-  if (/^\/(BR|SBR)\d+/.test(p)) return true; // ドスパラ一覧
-  return false;
-};
 
 if (!PERPLEXITY_KEY || !GEMINI_KEY) {
   console.error("PERPLEXITY_API_KEY / GEMINI_API_KEY が必要です");
@@ -38,21 +22,6 @@ if (!PERPLEXITY_KEY || !GEMINI_KEY) {
 }
 
 const now = () => new Date().toISOString();
-
-/* URL正規化: http/httpsのみ許可 + トラッキング系クエリ除去 → 同一商品の重複ID/NEW誤爆を防ぐ */
-function canonUrl(raw) {
-  try {
-    const u = new URL(raw);
-    if (u.protocol !== "https:" && u.protocol !== "http:") return null;
-    const keep = [...u.searchParams.entries()]
-      .filter(([k]) => !/^(utm_|ref$|affid|asclid|scid$|s$)/i.test(k))
-      .sort(([a], [b]) => a.localeCompare(b));
-    u.search = new URLSearchParams(keep).toString();
-    return u.toString();
-  } catch {
-    return null;
-  }
-}
 const idOf = (url) => createHash("sha1").update(url).digest("hex").slice(0, 12);
 
 /* ---------- Perplexity Search API ---------- */
@@ -86,8 +55,7 @@ async function primarySearch() {
       if (!canon || seen.has(canon)) continue;
       let host = "";
       try { host = new URL(canon).hostname.replace(/^www\./, ""); } catch { continue; }
-      if (BLOCK_HOSTS.some((b) => host === b || host.endsWith(`.${b}`))) continue;
-      if (isListingPage(canon)) continue;
+      if (isListingPage(canon)) continue; // 一覧・カテゴリ・ニュース/技術記事・SNSを一括除外
       seen.add(canon);
       all.push({
         id: idOf(canon),
@@ -150,9 +118,7 @@ async function fetchText(url) {
       try { raw = new TextDecoder("shift_jis", { fatal: false }).decode(buf); } catch { /* keep utf-8 */ }
     }
     /* SPA等では価格が <script> 内JSONにしか無いことがある → タグ除去前に価格候補を収集 */
-    const priceCandidates = [...raw.matchAll(/[¥￥]?\s?\d{1,3}(?:,\d{3})+|\b\d{4,6}\s?円/gi)]
-      .map((m) => m[0].trim())
-      .slice(0, 12);
+    const priceCandidates = extractPriceCandidates(raw);
     const text = raw
       .replace(/<script[\s\S]*?<\/script>/gi, " ")
       .replace(/<style[\s\S]*?<\/style>/gi, " ")
@@ -293,14 +259,7 @@ async function verifyOne(item) {
   return VerifyOut.parse(parsed);
 }
 
-/* ---------- 差分 ---------- */
-function diffBadge(prev, item) {
-  if (item.factcheck.http_status === 404) return "sold_out"; // 死リンクをNEW扱いしない
-  const p = prev?.find((x) => x.id === item.id);
-  if (!p) return "new";
-  if (p.price_yen && item.price_yen && item.price_yen < p.price_yen) return "price_down";
-  return null;
-}
+/* ---------- 差分(diffBadge は lib/filters.mjs を使用) ---------- */
 
 /* ---------- main ---------- */
 const started = now();
