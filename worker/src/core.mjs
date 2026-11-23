@@ -172,7 +172,7 @@ const ITEM_SCHEMA = {
   },
 };
 
-function buildQuery(body) {
+export function buildQuery(body) {
   const gpuMap = {
     "rtx3060-12": "RTX 3060 12GB",
     vram12: "VRAM 12GB以上 グラフィックス",
@@ -180,8 +180,8 @@ function buildQuery(body) {
   };
   const parts = ["中古 デスクトップPC"];
   if (body.gpu && gpuMap[body.gpu]) parts.push(gpuMap[body.gpu]);
-  if (body.price) parts.push(`${Math.round(body.price / 10000)}万円以下`);
   if (body.ram) parts.push(`メモリ${body.ram}GB以上`);
+  if (body.price) parts.push(`${Math.round(body.price / 10000)}万円以下`);
   if (body.free) parts.push(String(body.free).slice(0, 80));
   parts.push("中古");
   return parts.join(" ");
@@ -242,7 +242,8 @@ export async function handleSearch(env, body) {
         return false;
       }
     }));
-    const top = top0.filter((_, i) => sniffs[i]).slice(0, 8);
+    /* 404(在庫切れ)はリアルタイム結果に出さない */
+    const top = top0.filter((_, i) => sniffs[i]).slice(0, 10);
     const statuses = await Promise.all(top.map((it) => httpStatus(it.url)));
     top.forEach((it, i) => { it.factcheck.http_status = statuses[i]; });
     const live = top.filter((it) => it.factcheck.http_status !== 404);
@@ -259,8 +260,8 @@ export async function handleSearch(env, body) {
         generated_at: new Date().toISOString(),
         source: "realtime",
         query,
-        items: top,
-        note: "価格・スペックは行ごとの照合(/verify)または次回の定期取得で補完されます",
+        items: live,
+        note: "在庫切れ(404)は除外表示。価格・スペックは行ごとの照合(/verify)または次回の定期取得で補完されます",
       },
     };
   } catch (e) {

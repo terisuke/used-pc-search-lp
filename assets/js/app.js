@@ -349,6 +349,7 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           gpu: fd.get("rt-gpu") || "",
+          ram: Number(fd.get("rt-ram")) || null,
           price: Number(fd.get("rt-price")) || null,
           free: fd.get("rt-free") || "",
         }),
