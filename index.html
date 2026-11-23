@@ -39,30 +39,30 @@
           <label for="f-keyword">キーワード</label>
         </div>
         <div class="grid">
-          <select id="f-gpu">
+          <select id="f-gpu" name="f-gpu">
             <option value="">指定なし</option>
             <option value="rtx3060-12" selected>RTX 3060 12GB</option>
             <option value="vram12">VRAM 12GB以上</option>
             <option value="vram16">VRAM 16GB以上</option>
           </select>
-          <select id="f-price">
+          <select id="f-price" name="f-price">
             <option value="">指定なし</option>
             <option value="90000">9万円</option>
             <option value="100000">10万円</option>
             <option value="110000" selected>11万円</option>
           </select>
-          <select id="f-ram">
+          <select id="f-ram" name="f-ram">
             <option value="">指定なし</option>
             <option value="16" selected>16GB以上</option>
             <option value="32">32GB以上</option>
           </select>
-          <select id="f-rank">
+          <select id="f-rank" name="f-rank">
             <option value="">指定なし</option>
             <option value="C" selected>C以上</option>
             <option value="B">B以上</option>
             <option value="A">A以上</option>
           </select>
-          <input type="search" id="f-keyword" placeholder="例: 8500G / 1TB SSD" aria-describedby="f-keyword-hint">
+          <input type="search" id="f-keyword" name="f-keyword" placeholder="例: 8500G / 1TB SSD" aria-describedby="f-keyword-hint">
         </div>
         <p id="f-keyword-hint" class="visually-hidden">商品名・CPU・GPU・SSDなど、一覧のテキストに対する部分一致でしぼり込みます。</p>
         <div class="form-actions">
@@ -89,7 +89,7 @@
             <tr>
               <th scope="col" id="th-status">ステータス</th>
               <th scope="col" id="th-price" aria-sort="ascending">
-                <button type="button" class="sort-btn" data-key="price_yen">価格 <span aria-hidden="true">▲</span></button>
+                <button type="button" class="sort-btn" data-key="price_yen">価格 <span class="arrow" aria-hidden="true">▲</span></button>
               </th>
               <th scope="col" id="th-gpu" aria-sort="none">
                 <button type="button" class="sort-btn" data-key="gpu">GPU</button>
@@ -128,18 +128,18 @@
           <label for="rt-free">その他の条件</label>
         </div>
         <div class="grid">
-          <select id="rt-gpu">
+          <select id="rt-gpu" name="rt-gpu">
             <option value="rtx3060-12" selected>RTX 3060 12GB</option>
             <option value="vram12">VRAM 12GB以上</option>
             <option value="vram16">VRAM 16GB以上</option>
           </select>
-          <select id="rt-price">
+          <select id="rt-price" name="rt-price">
             <option value="90000">9万円</option>
             <option value="100000">10万円</option>
             <option value="110000" selected>11万円</option>
             <option value="">指定なし</option>
           </select>
-          <input type="text" id="rt-free" placeholder="例: CPU第8世代以降 / SSD 1TB">
+          <input type="text" id="rt-free" name="rt-free" placeholder="例: CPU第8世代以降 / SSD 1TB">
         </div>
         <div class="form-actions">
           <button type="submit" id="rt-submit" class="min-target" aria-disabled="true">リアルタイム検索</button>
