@@ -71,7 +71,7 @@ test("extractPriceCandidates: script内JSON・本文から価格候補を収集"
 });
 
 test("buildQuery: GPU/RAM/価格/自由条件がクエリに反映される", async () => {
-  const { buildQuery, buildMarketQuery } = await import("../worker/src/core.mjs");
+  const { buildQuery, buildMarketQuery, buildStockQuery } = await import("../worker/src/core.mjs");
   const q = buildQuery({ gpu: "rtx3060-12", ram: 32, price: 110000, free: "SSD 1TB" });
   assert.ok(q.includes("RTX 3060 12GB"));
   assert.ok(q.includes("メモリ32GB以上"));
@@ -83,6 +83,10 @@ test("buildQuery: GPU/RAM/価格/自由条件がクエリに反映される", as
   const market = buildMarketQuery({ ram: 16 });
   assert.ok(market.includes("メルカリ") && market.includes("ヤフオク") && market.includes("フリマ"));
   assert.ok(market.includes("メモリ16GB"));
+  /* 在庫あり系クエリ: 売り切れが多い前提で販売中を優先的に拾う */
+  const stock = buildStockQuery({ gpu: "rtx3060-12" });
+  assert.ok(stock.includes("在庫あり") && stock.includes("販売中"));
+  assert.ok(stock.includes("RTX 3060 12GB"));
 });
 
 test("楽天のカテゴリページ(/c/)は商品として扱わない(実事故)", () => {
