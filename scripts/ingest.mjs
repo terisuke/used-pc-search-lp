@@ -384,9 +384,12 @@ await mapPool(top, 3, async (it) => {
 let prev = null;
 try { prev = JSON.parse(await readFile(path.join(ROOT, "data/latest.json"), "utf8")).items; } catch { /* first run */ }
 
-/* 在庫切れ(404)は一覧に出さない(履歴データ側には残る) */
-const soldOutExcluded = raw.filter((it) => it.factcheck.http_status === 404).length;
-const keep = [...pcs];
+/* 在庫切れは一覧に出さない: HTTP 404 に加え、ページ内容が売り切れ/在庫切れ/販売終了の行も除外(履歴側は維持) */
+const isSoldOutContent = (it) =>
+  it.factcheck?.verdict === "mismatch" &&
+  (it.factcheck.issues || []).some((s) => /売り切れ|在庫切れ|販売終了/.test(s));
+const soldOutExcluded = raw.filter((it) => it.factcheck.http_status === 404).length + pcs.filter(isSoldOutContent).length;
+const keep = pcs.filter((it) => !isSoldOutContent(it));
 const items = keep.map((it) => {
   const p = prev?.find((x) => x.id === it.id);
   /* 今回照合していない場合、前回の判定(HTTP 200のまま)を引き継ぐ — 信頼シグセルの毎サイクル消失を防ぐ */
