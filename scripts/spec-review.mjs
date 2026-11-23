@@ -113,7 +113,8 @@ const proposedRaw = await geminiJson(
   "2026年11月時点で『中古デスクトップPCでローカルLLM(Qwen系MoE)を実際に運用する』ための" +
   "ターゲットスペック定義を提案してください。llama.cppのMoEオフロード(--n-cpu-moe)や" +
   "Strataのようなエキスパートストリーミング時代の要件を反映し、RAM/VRAM/ストレージの" +
-  "妥当な最小値と推奨値を決めてください。根拠URLは必ずsourcesに反映。" +
+  "妥当な最小値と推奨値を決めてください。**RAM 16GBは『増設前提の拡張ベース(upgrade-base)』" +
+  "プロファイルとして必ず含めること**。根拠URLは必ずsourcesに反映。" +
   `現在の定義(参考・維持すべき場合は変更しない): ${JSON.stringify(current)}` +
   "\n\n検索結果:\n" + evidence.map((e, i) => `[${i}] ${e.title} (${e.url}, updated:${e.last_updated || "?"})\n${e.snippet}`).join("\n\n") +
   "\n\nchange_summaryには現行定義との差分を日本語1-3文で。変更が不要なら「変更不要」。",

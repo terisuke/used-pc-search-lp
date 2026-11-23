@@ -110,6 +110,12 @@
     });
   }
 
+  const SORT_LABEL = {
+    price_yen: "価格", gpu: "GPU", ram_gb: "メモリ", rank: "ランク",
+    updated_at: "更新", status: "ステータス", shop: "店舗",
+  };
+  const STATUS_RANK = { verified: 0, partial: 1, unchecked: 2, mismatch: 3, missing: 4 };
+
   /* --- ソート --- */
   function cmp(a, b) {
     const k = state.sortKey;
@@ -121,6 +127,10 @@
       d = nullsLast(a.rank, b.rank) || (RANK_ORDER[a.rank] ?? 9) - (RANK_ORDER[b.rank] ?? 9);
     } else if (k === "updated_at") {
       d = nullsLast(a[k], b[k]) || String(a[k]).localeCompare(String(b[k]));
+    } else if (k === "status") {
+      d = (STATUS_RANK[statusOf(a)] ?? 9) - (STATUS_RANK[statusOf(b)] ?? 9);
+    } else if (k === "shop") {
+      d = String(a.shop ?? "").localeCompare(String(b.shop ?? ""), "ja");
     } else {
       d = String(a[k] ?? "").localeCompare(String(b[k] ?? ""), "ja");
     }
@@ -130,18 +140,13 @@
   function updateAriaSort() {
     for (const btn of document.querySelectorAll(".sort-btn")) {
       const th = btn.closest("th");
+      const arrow = btn.querySelector(".arrow");
       if (btn.dataset.key === state.sortKey) {
         th.setAttribute("aria-sort", state.sortDir === "asc" ? "ascending" : "descending");
-        btn.querySelector(".arrow")?.remove();
-        btn.insertAdjacentHTML(
-          "beforeend",
-          state.sortDir === "asc"
-            ? ' <span class="arrow" aria-hidden="true">▲</span>'
-            : ' <span class="arrow" aria-hidden="true">▼</span>',
-        );
+        if (arrow) arrow.textContent = state.sortDir === "asc" ? "▲" : "▼";
       } else {
         th.setAttribute("aria-sort", "none");
-        btn.querySelector(".arrow")?.remove();
+        if (arrow) arrow.textContent = "";
       }
     }
   }
@@ -178,10 +183,11 @@
     const shown = applyFilters(state.items).sort(cmp);
     els.itemsBody.innerHTML = shown.length
       ? shown.map(rowHtml).join("")
-      : '<tr><td colspan="7">条件に合う候補がありません。条件を緩めてください。</td></tr>';
-    els.status.textContent = `自動取得データから ${shown.length} / ${state.items.length} 件を表示中（並び替え: ${
-      state.sortKey === "price_yen" ? "価格" : state.sortKey
-    } ${state.sortDir === "asc" ? "昇順" : "降順"}）`;
+      : '<tr><td colspan="7">条件に合う候補がありません。条件を緩めるか「リセット」を押してください。</td></tr>';
+    const sortText = `並び替え: ${SORT_LABEL[state.sortKey] || state.sortKey} ${state.sortDir === "asc" ? "昇順" : "降順"}`;
+    els.status.textContent = shown.length === state.items.length
+      ? `全 ${state.items.length} 件を表示中（${sortText}）— 条件で絞り込めます`
+      : `${shown.length} / ${state.items.length} 件を表示中（フィルタ適用中・${sortText}）`;
     updateAriaSort();
   }
 
@@ -204,6 +210,7 @@
       ["ステータス", STATUS_LABEL[st]],
       ["照合メモ", (fc.issues || []).join("／") || "—"],
       ["HTTP確認", fc.http_status ? String(fc.http_status) : "—"],
+      ["ページ上の価格", fc.page_price_yen != null ? fmtYen(fc.page_price_yen) : "—"],
       ["最終照合", fmtDate(fc.checked_at)],
       ["初出 / 最終確認", `${fmtDate(h.first_seen)} / ${fmtDate(h.last_seen)}`],
       ["前回価格", h.prev_price_yen ? fmtYen(h.prev_price_yen) : "—"],
@@ -278,7 +285,10 @@
       if (!res.ok) return;
       const spec = await res.json();
       if (!spec || !Array.isArray(spec.profiles) || !spec.profiles.length) return;
-      $("spec-reviewed-at").textContent = `最終見直し ${fmtDate(spec.reviewed_at)}`;
+      const reviewed = typeof spec.reviewed_at === "string" && spec.reviewed_at.length <= 10
+        ? spec.reviewed_at
+        : fmtDate(spec.reviewed_at);
+      $("spec-reviewed-at").textContent = `最終見直し ${reviewed}`;
       $("spec-profiles").innerHTML = spec.profiles.map((p) => `
         <div class="spec-card">
           <h3>${esc(p.label)}</h3>

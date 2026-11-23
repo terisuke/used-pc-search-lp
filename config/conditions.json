@@ -13,7 +13,7 @@
     "gpu_priority": "RTX 3060 12GB / 16GB級VRAM優先、12GB下限 (llama.cpp --n-cpu-moe / Strata前提)",
     "max_price_yen": 110000,
     "min_ram_gb": 16,
-    "ram_note": "RAM多め(32/64GB)を優先 — MoEエキスパートはRAMに置く",
+    "ram_note": "16GBは増設前提の拡張ベースとして対象。RAM多め(32/64GB)を優先 — MoEエキスパートはRAMに置く",
     "min_rank": "C",
     "country": "JP"
   }

@@ -111,6 +111,18 @@
 }
 .sort-btn .arrow {
   font-size: 0.75em;
+  min-width: 1em;
+  display: inline-block;
+}
+.sort-btn .arrow:empty::before {
+  content: "↕";
+  opacity: 0.35;
+}
+#items-table tbody tr:hover td {
+  background: color-mix(in srgb, var(--pico-primary) 7%, transparent);
+}
+@media (prefers-reduced-transparency: reduce) {
+  #items-table tbody tr:hover td { background: none; }
 }
 tr.row-sold-out td {
   opacity: 0.6;

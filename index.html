@@ -46,28 +46,28 @@
         </div>
         <div class="grid">
           <select id="f-gpu" name="f-gpu">
-            <option value="">指定なし</option>
-            <option value="rtx3060-12" selected>RTX 3060 12GB</option>
+            <option value="" selected>指定なし</option>
+            <option value="rtx3060-12">RTX 3060 12GB</option>
             <option value="vram12">VRAM 12GB以上</option>
             <option value="vram16">VRAM 16GB以上</option>
           </select>
           <select id="f-price" name="f-price">
-            <option value="">指定なし</option>
+            <option value="" selected>指定なし</option>
             <option value="90000">9万円</option>
             <option value="100000">10万円</option>
-            <option value="110000" selected>11万円</option>
+            <option value="110000">11万円</option>
             <option value="120000">12万円</option>
             <option value="130000">13万円</option>
           </select>
           <select id="f-ram" name="f-ram">
-            <option value="">指定なし</option>
-            <option value="16" selected>16GB以上</option>
+            <option value="" selected>指定なし</option>
+            <option value="16">16GB以上</option>
             <option value="32">32GB以上</option>
             <option value="64">64GB以上</option>
           </select>
           <select id="f-rank" name="f-rank">
-            <option value="">指定なし</option>
-            <option value="C" selected>C以上</option>
+            <option value="" selected>指定なし</option>
+            <option value="C">C以上</option>
             <option value="B">B以上</option>
             <option value="A">A以上</option>
           </select>
@@ -85,6 +85,7 @@
     <section aria-labelledby="list-heading">
       <h2 id="list-heading">候補一覧</h2>
       <p id="legend" class="legend">
+        すべての列見出しボタンで並べ替えられます。初期状態は全件表示です。
         ステータス凡例:
         <strong>✅ 確認済み</strong>=リンク切れでなくスペック照合済み /
         <strong>⚠️ 一部不一致</strong>=内容に差異あり /
@@ -96,23 +97,27 @@
           <caption class="visually-hidden">中古PC候補一覧。列見出しのボタンで並べ替えられます。</caption>
           <thead>
             <tr>
-              <th scope="col" id="th-status">ステータス</th>
+              <th scope="col" id="th-status" aria-sort="none">
+                <button type="button" class="sort-btn" data-key="status">ステータス <span class="arrow" aria-hidden="true"></span></button>
+              </th>
               <th scope="col" id="th-price" aria-sort="ascending">
                 <button type="button" class="sort-btn" data-key="price_yen">価格 <span class="arrow" aria-hidden="true">▲</span></button>
               </th>
               <th scope="col" id="th-gpu" aria-sort="none">
-                <button type="button" class="sort-btn" data-key="gpu">GPU</button>
+                <button type="button" class="sort-btn" data-key="gpu">GPU <span class="arrow" aria-hidden="true"></span></button>
               </th>
               <th scope="col" id="th-ram" aria-sort="none">
-                <button type="button" class="sort-btn" data-key="ram_gb">メモリ</button>
+                <button type="button" class="sort-btn" data-key="ram_gb">メモリ <span class="arrow" aria-hidden="true"></span></button>
               </th>
               <th scope="col" id="th-rank" aria-sort="none">
-                <button type="button" class="sort-btn" data-key="rank">ランク</button>
+                <button type="button" class="sort-btn" data-key="rank">ランク <span class="arrow" aria-hidden="true"></span></button>
               </th>
               <th scope="col" id="th-updated" aria-sort="none">
-                <button type="button" class="sort-btn" data-key="updated_at">更新</button>
+                <button type="button" class="sort-btn" data-key="updated_at">更新 <span class="arrow" aria-hidden="true"></span></button>
               </th>
-              <th scope="col" id="th-item">商品</th>
+              <th scope="col" id="th-item" aria-sort="none">
+                <button type="button" class="sort-btn" data-key="shop">商品 / 店舗 <span class="arrow" aria-hidden="true"></span></button>
+              </th>
             </tr>
           </thead>
           <tbody id="items-body">
