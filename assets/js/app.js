@@ -365,7 +365,8 @@
       $("rt-restore").hidden = false;
       els.generatedAt.textContent = `リアルタイム(${fmtDate(data.generated_at)})`;
       render();
-      progress.textContent = `リアルタイム検索完了: ${state.items.length} 件。上位行から順にスペック照合中…`;
+      scrollToResults();
+      progress.textContent = `リアルタイム検索完了: ${state.items.length} 件を下の一覧に表示しました。上位行から順にスペック照合中…`;
       lazyVerifyTop(5, progress);
     } catch (err) {
       errorBox.hidden = false;
@@ -429,6 +430,19 @@
   setRtReady(false);
 
   /* --- ターゲットスペックボックス --- */
+  const PROFILE_FILTERS = {
+    "upgrade-base": { gpu: "vram12", ram: "16", label: "拡張前提(16GB→増設)" },
+    "mainstream-moe": { gpu: "vram12", ram: "64", label: "標準(MoEストリーミング)" },
+    "all-in-vram": { gpu: "vram16", ram: "32", label: "高速(フルGPU)" },
+  };
+  const prefersReducedMotion = () =>
+    window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const scrollToResults = () => {
+    const heading = $("list-heading");
+    heading.scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth", block: "start" });
+    heading.focus({ preventScroll: true });
+  };
+
   async function loadSpecBox() {
     const box = $("spec-box");
     try {
@@ -449,12 +463,28 @@
             <dt>CPU</dt><dd>${esc(p.min_cpu_cores)}コア以上</dd>
             <dt>想定</dt><dd>${esc(p.target_models)}</dd>
           </dl>
+          <button type="button" class="spec-apply min-target" data-profile="${esc(p.id)}">この条件で絞る</button>
         </div>`).join("");
       box.hidden = false;
     } catch {
       /* specボックスは任意 — 失敗時は非表示のまま */
     }
   }
+
+  $("spec-profiles").addEventListener("click", (e) => {
+    const btn = e.target.closest(".spec-apply");
+    if (!btn) return;
+    const conf = PROFILE_FILTERS[btn.dataset.profile];
+    if (!conf) return;
+    const form = els.filterForm;
+    form.elements["f-gpu"].value = conf.gpu;
+    form.elements["f-ram"].value = conf.ram;
+    form.elements["f-price"].value = "";
+    form.elements["f-rank"].value = "";
+    render();
+    els.status.textContent = `「${conf.label}」の条件を適用しました。` + els.status.textContent;
+    scrollToResults();
+  });
 
   /* --- 初期化 --- */
   async function init() {
