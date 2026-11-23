@@ -18,6 +18,22 @@
 
 `config/conditions.json` で変更（クエリ・件数・照合上位件数・目安条件）。
 
+## モデル
+
+| 用役 | モデル | 備考 |
+|---|---|---|
+| 一次検索 | Perplexity Search API | モデル無し・実URL・リクエスト課金 |
+| スペック抽出/照合 | `gemini-4-hydrogen` (Gemini 4 Flash級) | `GEMINI_MODEL` で上書き可 |
+| 週次スペック見直し | `gemini-4-hydrogen` + Perplexity Search | 提案はIssue起票し人間レビュー |
+
+## 週次スペック見直し (`.github/workflows/spec-review.yml`)
+
+毎週月曜 01:00 JST に最新のローカルLLM運用要件(VRAM/RAM/エンジン進化: llama.cpp MoEオフロード,
+Strata等)をPerplexityで収集し、Geminiが `config/target-spec.json` 相当の提案を合成。
+`data/spec-review-latest.{json,md}` を更新し、現行と差分があればGitHub Issueを起票(人間が確認して
+`config/target-spec.json` と `config/conditions.json` に反映)。LP上部の「ターゲットスペック」ボックスは
+この結果を表示する。
+
 ## Secrets (GitHub Actions)
 
 | Secret | 由来 (Bitwarden `bwenv`) |

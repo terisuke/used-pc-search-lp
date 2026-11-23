@@ -1,0 +1,69 @@
+name: spec-review
+
+on:
+  schedule:
+    - cron: "0 16 * * 0" # 毎週月曜 01:00 JST
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: spec-review
+  cancel-in-progress: false
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    outputs:
+      committed: ${{ steps.data.outputs.committed }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: node scripts/spec-review.mjs
+        env:
+          PERPLEXITY_API_KEY: ${{ secrets.PERPLEXITY_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+      - id: data
+        run: |
+          if git diff --quiet data/; then
+            echo "committed=false" >> "$GITHUB_OUTPUT"
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add data/spec-review-latest.json data/spec-review-latest.md
+            git commit -m "chore(data): weekly spec-review $(date -u +%Y-%m-%d)"
+            git push
+            echo "committed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  deploy:
+    needs: review
+    if: needs.review.outputs.committed == 'true'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: main
+      - id: deployment
+        uses: actions/configure-pages@v5
+      - name: bust asset cache
+        run: |
+          sed -i "s|assets/js/app.js|assets/js/app.js?v=${GITHUB_SHA:0:8}|g; s|assets/css/app.css|assets/css/app.css?v=${GITHUB_SHA:0:8}|g" index.html
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: .
+      - uses: actions/deploy-pages@v4
