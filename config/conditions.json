@@ -5,8 +5,8 @@
     "中古 デスクトップPC VRAM 12GB以上 グラボ搭載",
     "中古 デスクトップPC 64GB メモリ グラフィックス搭載"
   ],
-  "max_results_per_query": 8,
-  "max_items": 15,
+  "max_results_per_query": 20,
+  "max_items": 30,
   "verify_top_n": 5,
   "gemini_model": "gemini-4-hydrogen",
   "target": {

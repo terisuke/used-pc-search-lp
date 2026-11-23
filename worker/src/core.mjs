@@ -97,7 +97,7 @@ async function perplexitySearch(env, query) {
   const res = await fetch("https://api.perplexity.ai/search", {
     method: "POST",
     headers: { Authorization: `Bearer ${env.PERPLEXITY_API_KEY}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ query, max_results: 10 }),
+    body: JSON.stringify({ query, max_results: 20 }),
     signal: AbortSignal.timeout(30_000),
   });
   if (!res.ok) throw new Error(`perplexity ${res.status}`);
@@ -236,10 +236,18 @@ export function buildMarketQuery(body) {
   return parts.join(" ");
 }
 
+export function buildStockQuery(body) {
+  const parts = ["中古 デスクトップPC"];
+  if (body.gpu === "rtx3060-12") parts.push("RTX 3060 12GB");
+  parts.push("在庫あり 販売中 通販");
+  return parts.join(" ");
+}
+
 export async function handleSearch(env, body) {
   try {
-    const query = buildQuery(body || {});
-    const queries = [...new Set([query, buildMarketQuery(body || {})])];
+    const queries = [
+      ...new Set([buildQuery(body || {}), buildMarketQuery(body || {}), buildStockQuery(body || {})]),
+    ];
     const resultSets = await Promise.all(queries.map((q) => perplexitySearch(env, q).catch(() => [])));
     const results = resultSets.flat();
     const seen = new Set();
@@ -260,32 +268,50 @@ export async function handleSearch(env, body) {
         factcheck: { http_status: null, verdict: null, checked_at: null, issues: [] },
       });
     }
-    /* 候補は最大20件をすべて確認してから上位10件を採用(売り切れ除外で枠を余らせない) */
-    const top0 = candidates.slice(0, 20);
-    /* 商品ページ確認+売り切れ機械判定を1フェッチで同時に実施(売り切れは最初から返さない) */
-    const checks = await Promise.all(top0.map(async (it) => {
-      const signal = hasProductUrlSignal(it.url);
-      try {
-        const res = await fetch(it.url, {
-          headers: { "User-Agent": UA, "Accept-Language": "ja" },
-          redirect: "follow",
-          signal: AbortSignal.timeout(10_000),
-        });
-        if (!res.ok) return { keep: signal && res.status !== 404, soldOut: false, reason: `http-${res.status}` };
-        const buf = await res.arrayBuffer().then((b) => b.slice(0, 250_000));
-        const raw = new TextDecoder("utf-8", { fatal: false }).decode(buf);
-        const soldOut = detectSoldOutFromHtml(raw);
-        const isProduct = detectProductMarkers(raw).isProduct;
-        return {
-          keep: !soldOut && (signal || isProduct),
-          soldOut,
-          reason: soldOut ? "soldout" : isProduct || signal ? "ok" : "not-product",
-        };
-      } catch {
-        return { keep: signal, soldOut: false, reason: "fetch-fail" }; // 取得失敗時はURLシグナルのみで判断
+    /* 売り切れが多い前提で多めに確認(最大40件)。Worker無料枠のサブリクエスト上限(50)を考慮し
+       同時接続は6に制限する */
+    const top0 = candidates.slice(0, 40);
+    const checks = new Array(top0.length);
+    let wi = 0;
+    const workers = Array.from({ length: Math.min(6, top0.length) }, async () => {
+      while (wi < top0.length) {
+        const idx = wi++;
+        const it = top0[idx];
+        const signal = hasProductUrlSignal(it.url);
+        try {
+          const res = await fetch(it.url, {
+            headers: { "User-Agent": UA, "Accept-Language": "ja" },
+            redirect: "follow",
+            signal: AbortSignal.timeout(10_000),
+          });
+          const status = res.status;
+          if (!res.ok) {
+            checks[idx] = { keep: signal && status !== 404, soldOut: false, reason: `http-${status}`, status };
+            continue;
+          }
+          const buf = await res.arrayBuffer().then((b) => b.slice(0, 250_000));
+          const raw = new TextDecoder("utf-8", { fatal: false }).decode(buf);
+          const soldOut = detectSoldOutFromHtml(raw);
+          const isProduct = detectProductMarkers(raw).isProduct;
+          checks[idx] = {
+            keep: !soldOut && (signal || isProduct),
+            soldOut,
+            reason: soldOut ? "soldout" : isProduct || signal ? "ok" : "not-product",
+            status,
+          };
+        } catch {
+          checks[idx] = { keep: signal, soldOut: false, reason: "fetch-fail", status: null };
+        }
       }
-    }));
-    const top = top0.filter((_, i) => checks[i].keep).slice(0, 10);
+    });
+    await Promise.all(workers);
+    const keptAll = top0
+      .map((it, i) => ({ it, c: checks[i] }))
+      .filter(({ c }) => c.keep && c.status !== 404);
+    const top = keptAll.slice(0, 10).map(({ it, c }) => {
+      it.factcheck.http_status = c.status ?? null;
+      return it;
+    });
     const soldOutAtSearch = checks.filter((c) => c.soldOut).length;
     const removedReasons = top0
       .map((it, i) => ({ url: it.url, keep: checks[i].keep, reason: checks[i].reason }))
@@ -305,8 +331,10 @@ export async function handleSearch(env, body) {
       body: {
         generated_at: new Date().toISOString(),
         source: "realtime",
-        query,
-        items: live,
+        queries,
+        candidates: candidates.length,
+        checked: top0.length,
+        items: top,
         soldOutExcluded: soldOutAtSearch,
         removed: removedReasons,
         note: "売り切れ(SOLD OUT/完売等)・404は除外して返します。価格・スペックは行ごとの照合(/verify)または次回の定期取得で補完されます",
