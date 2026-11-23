@@ -70,6 +70,17 @@ test("extractPriceCandidates: script内JSON・本文から価格候補を収集"
   assert.ok(cands.length <= 12);
 });
 
+test("buildQuery: GPU/RAM/価格/自由条件がクエリに反映される", async () => {
+  const { buildQuery } = await import("../worker/src/core.mjs");
+  const q = buildQuery({ gpu: "rtx3060-12", ram: 32, price: 110000, free: "SSD 1TB" });
+  assert.ok(q.includes("RTX 3060 12GB"));
+  assert.ok(q.includes("メモリ32GB以上"));
+  assert.ok(q.includes("11万円以下"));
+  assert.ok(q.includes("SSD 1TB"));
+  const bare = buildQuery({});
+  assert.ok(!bare.includes("メモリ"));
+});
+
 test("diffBadge: 死リンクはNEWにならずsold_out優先", () => {
   const prev = [{ id: "x", price_yen: 90000 }];
   assert.equal(diffBadge(prev, { id: "x", factcheck: { http_status: 404 } }), "sold_out");

@@ -96,6 +96,7 @@
       <form id="rt-form" aria-describedby="rt-note">
         <div class="grid">
           <label for="rt-gpu">GPU</label>
+          <label for="rt-ram">メモリ</label>
           <label for="rt-price">価格上限</label>
           <label for="rt-free">その他の条件</label>
         </div>
@@ -105,6 +106,12 @@
             <option value="rtx3060-12" selected>RTX 3060 12GB</option>
             <option value="vram12">VRAM 12GB以上</option>
             <option value="vram16">VRAM 16GB以上</option>
+          </select>
+          <select id="rt-ram" name="rt-ram">
+            <option value="">指定なし</option>
+            <option value="16" selected>16GB以上</option>
+            <option value="32">32GB以上</option>
+            <option value="64">64GB以上</option>
           </select>
           <select id="rt-price" name="rt-price">
             <option value="">指定なし</option>
