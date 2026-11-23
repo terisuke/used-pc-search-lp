@@ -24,6 +24,7 @@ export function isListingPage(url) {
     if (isBlockedHost(u.hostname)) return true; // ニュース/技術記事/SNS等
     const h = u.hostname.replace(/^www\./, "");
     if (h === "search.rakuten.co.jp") return true;
+    if (h === "item.rakuten.co.jp" && /(^|\/)c(\/|$)/.test(u.pathname)) return true; // 楽天のカテゴリ(/c/)
     if (h.endsWith("kakaku.com") && /^\/used\//.test(u.pathname)) return true;
     const p = u.pathname;
     if (/(^|\/)(search|closedsearch)(\/|$)/.test(p)) return true;
@@ -74,7 +75,7 @@ export function hasProductUrlSignal(url) {
   try {
     const u = new URL(url);
     const p = u.pathname;
-    if (u.hostname === "item.rakuten.co.jp") return true; // 楽天の商品ホスト
+    if (u.hostname === "item.rakuten.co.jp") return !/(^|\/)c(\/|$)/.test(p); // /c/ はカテゴリ
     if (/\/item\/[A-Za-z0-9_-]{4,}/.test(p)) return true;            // mercari / paypayフリマ / 等
     if (/\/jp\/auction\/[A-Za-z0-9]+/.test(p)) return true;   // Yahooオークション(u123...形式含む)
     if (/detail\.(php|aspx|html?)/i.test(p)) return true;             // EC-CUBE / .aspx 系商品詳細
@@ -88,11 +89,12 @@ export function hasProductUrlSignal(url) {
   }
 }
 
-/* 売り切れの機械判定。JSバンドル内の定数文字列への誤反応を避けるため、
-   1) 可視テキスト(script/style/タグ除去後)の売り切れ表記
-   2) schema.org availability=OutOfStock
-   3) 明示的な "status":"sold_out" キー値
-   のみを対象にする(単一商品ページでは十分信頼できる)。 */
+/* 売り切れの機械判定。JSバンドル/i18n辞書の定数文字列への誤反応を避けるため、
+   1) 可視テキスト中の売り切れ表記が2回以上(商品ページのバナー+注記等)
+   2) 可視テキスト中で「この商品/当商品/本商品」直後の売り切れ表記(1回でも)
+   3) schema.org availability=OutOfStock
+   4) 明示的な "status":"sold_out" キー値
+   のみを対象にする。 */
 const SOLD_OUT_TEXT_RE = /SOLD\s*OUT|完売|品切れ|在庫なし|在庫切れ|売り切れ|販売終了|取り扱い(を)?終了|再入荷(待ち|予定)/i;
 export const SOLD_OUT_RE = SOLD_OUT_TEXT_RE; // 可視テキスト用(regex単体テスト・parity用)
 export function detectSoldOutFromHtml(rawHtml) {
@@ -100,8 +102,11 @@ export function detectSoldOutFromHtml(rawHtml) {
   const visibleText = raw
     .replace(/<script[\s\S]*?<\/script>/gi, " ")
     .replace(/<style[\s\S]*?<\/style>/gi, " ")
-    .replace(/<[^>]+>/g, " ");
-  if (SOLD_OUT_TEXT_RE.test(visibleText)) return true;
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ");
+  const hits = [...visibleText.matchAll(new RegExp(SOLD_OUT_TEXT_RE.source, "gi"))].length;
+  if (hits >= 2) return true;
+  if (hits === 1 && /(この商品|当商品|本商品)[^。]{0,40}(売り切れ|在庫切れ|完売|品切れ|SOLD)/i.test(visibleText)) return true;
   if (/"availability"\s*:\s*"[^"]*OutOfStock/i.test(raw)) return true;
   if (/"status"\s*:\s*"sold_out"/i.test(raw)) return true;
   return false;

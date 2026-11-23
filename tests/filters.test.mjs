@@ -85,6 +85,15 @@ test("buildQuery: GPU/RAM/価格/自由条件がクエリに反映される", as
   assert.ok(market.includes("メモリ16GB"));
 });
 
+test("楽天のカテゴリページ(/c/)は商品として扱わない(実事故)", () => {
+  const url = "https://item.rakuten.co.jp/pasonette/c/0000000141/";
+  assert.equal(isListingPage(url), true);
+  assert.equal(hasProductUrlSignal(url), false);
+  // 商品ページは従来どおり通る
+  assert.equal(hasProductUrlSignal("https://item.rakuten.co.jp/e-fellows5/12100134/"), true);
+  assert.equal(isListingPage("https://item.rakuten.co.jp/e-fellows5/12100134/"), false);
+});
+
 test("diffBadge: 死リンクはNEWにならずsold_out優先", () => {
   const prev = [{ id: "x", price_yen: 90000 }];
   assert.equal(diffBadge(prev, { id: "x", factcheck: { http_status: 404 } }), "sold_out");
@@ -126,14 +135,15 @@ test("本文スニフ: JSON-LD Product / og:type=product で商品ページと�
 });
 
 test("売り切れの機械判定: 一目で分かるSOLD OUT表記をモデルに委ねない", () => {
-  assert.equal(detectSoldOutFromHtml('<div class="soldout">SOLD OUT</div>'), true);
+  assert.equal(detectSoldOutFromHtml('<div class="soldout">SOLD OUT</div><div>SOLD OUT</div>'), true);
   assert.equal(detectSoldOutFromHtml("この商品は完売しました"), true);
   assert.equal(detectSoldOutFromHtml("品切れ・再入荷待ち"), true);
-  assert.equal(detectSoldOutFromHtml("在庫なし"), true);
   assert.equal(detectSoldOutFromHtml('window.__DATA__={"status":"sold_out"}'), true);
   assert.equal(detectSoldOutFromHtml('{"availability":"https://schema.org/OutOfStock"}'), true);
   assert.equal(detectSoldOutFromHtml("在庫あり 今すぐ購入"), false);
   assert.equal(detectSoldOutFromHtml("カートに入れる"), false);
+  /* 単発の在庫なし(注記・他商品ラベル等)は確定にしない */
+  assert.equal(detectSoldOutFromHtml("<p>一部商品は在庫なし</p>"), false);
   /* JSバンドル内の定数文字列(enum配列)への誤反応をしない */
   assert.equal(detectSoldOutFromHtml('<script>var e=["sold_out","on_sale"];var tpl="在庫切れ";</script>'), false);
 });

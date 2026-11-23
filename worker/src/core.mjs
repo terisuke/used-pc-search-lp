@@ -25,6 +25,7 @@ export function isListingPage(url) {
     if (isBlockedHost(u.hostname)) return true;
     const h = u.hostname.replace(/^www\./, "");
     if (h === "search.rakuten.co.jp") return true;
+    if (h === "item.rakuten.co.jp" && /(^|\/)c(\/|$)/.test(u.pathname)) return true;
     if (h.endsWith("kakaku.com") && /^\/used\//.test(u.pathname)) return true;
     const p = u.pathname;
     if (/(^|\/)(search|closedsearch)(\/|$)/.test(p)) return true;
@@ -42,7 +43,7 @@ export function hasProductUrlSignal(url) {
   try {
     const u = new URL(url);
     const p = u.pathname;
-    if (u.hostname === "item.rakuten.co.jp") return true;
+    if (u.hostname === "item.rakuten.co.jp") return !/(^|\/)c(\/|$)/.test(p);
     if (/\/item\/[A-Za-z0-9_-]{4,}/.test(p)) return true;
     if (/\/jp\/auction\/[A-Za-z0-9]+/.test(p)) return true;
     if (/detail\.(php|aspx|html?)/i.test(p)) return true;
@@ -58,15 +59,19 @@ export function hasProductUrlSignal(url) {
 
 export const SOLD_OUT_RE = /SOLD\s*OUT|完売|品切れ|在庫なし|在庫切れ|売り切れ|販売終了|取り扱い(を)?終了|再入荷(待ち|予定)/i;
 
-/* 売り切れの機械判定: 可視テキスト / availability=OutOfStock / "status":"sold_out" のみ
-   (JSバンドル内の定数文字列への誤反応を避ける) */
+/* 売り切れの機械判定(誤検知防止):
+   可視テキストで (a)売り切れ表記が2回以上 または (b)「この商品/当商品/本商品」直後の表記1回、
+   加えて schema.org availability=OutOfStock / 明示的 "status":"sold_out" のみを対象にする */
 export function detectSoldOutFromHtml(rawHtml) {
   const raw = String(rawHtml || "").slice(0, 400_000);
   const visibleText = raw
     .replace(/<script[\s\S]*?<\/script>/gi, " ")
     .replace(/<style[\s\S]*?<\/style>/gi, " ")
-    .replace(/<[^>]+>/g, " ");
-  if (SOLD_OUT_RE.test(visibleText)) return true;
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ");
+  const hits = [...visibleText.matchAll(new RegExp(SOLD_OUT_RE.source, "gi"))].length;
+  if (hits >= 2) return true;
+  if (hits === 1 && /(この商品|当商品|本商品)[^。]{0,40}(売り切れ|在庫切れ|完売|品切れ|SOLD)/i.test(visibleText)) return true;
   if (/"availability"\s*:\s*"[^"]*OutOfStock/i.test(raw)) return true;
   if (/"status"\s*:\s*"sold_out"/i.test(raw)) return true;
   return false;
@@ -253,7 +258,8 @@ export async function handleSearch(env, body) {
         factcheck: { http_status: null, verdict: null, checked_at: null, issues: [] },
       });
     }
-    const top0 = candidates.slice(0, 10);
+    /* 候補は最大20件をすべて確認してから上位10件を採用(売り切れ除外で枠を余らせない) */
+    const top0 = candidates.slice(0, 20);
     /* 商品ページ確認+売り切れ機械判定を1フェッチで同時に実施(売り切れは最初から返さない) */
     const checks = await Promise.all(top0.map(async (it) => {
       const signal = hasProductUrlSignal(it.url);
