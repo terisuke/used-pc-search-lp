@@ -140,8 +140,11 @@ export function hasStrongProductUrlSignal(url) {
     const u = new URL(url);
     const p = u.pathname;
     if (u.hostname === "item.rakuten.co.jp") return !/(^|\/)c(\/|$)/.test(p);
-    if (/\/jp\/auction\/[A-Za-z0-9]+/.test(p)) return true; // Yahooオークション
-    if (/\/item\/[A-Za-z0-9_-]{4,}/.test(p)) return true;   // paypayフリマ等
+    if (/\/jp\/auction\/[A-Za-z0-9]+/.test(p)) return true;              // Yahooオークション
+    if (/\/item\/[A-Za-z0-9_-]{4,}/.test(p)) return true;                // paypayフリマ等
+    if (/detail/i.test(p)) return true;                                  // 商品詳細エンドポイント(各店)
+    const keys = [...u.searchParams.keys()];
+    if (keys.some((k) => /^(product_id|item_code|itemcode|sku|pid|pr)$/i.test(k))) return true;
     return false;
   } catch {
     return false;

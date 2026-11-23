@@ -14,14 +14,17 @@ import {
   hasProductUrlSignal, hasStrongProductUrlSignal, detectProductMarkers, detectSoldOutFromHtml,
 } from "../scripts/lib/filters.mjs";
 
-test("強シグナル: 形状だけで商品と断定できるURL(オークション等)", () => {
+test("強シグナル: 形状だけで商品と断定できるURL(オークション・詳細エンドポイント)", () => {
   assert.equal(hasStrongProductUrlSignal("https://page.auctions.yahoo.co.jp/jp/auction/u123456789"), true);
   assert.equal(hasStrongProductUrlSignal("https://paypayfleamarket.yahoo.co.jp/item/z687820808"), true);
   assert.equal(hasStrongProductUrlSignal("https://item.rakuten.co.jp/e-fellows5/12100134/"), true);
+  assert.equal(hasStrongProductUrlSignal("https://www.pc-koubou.jp/products/detail.php?product_id=1225988"), true);
+  assert.equal(hasStrongProductUrlSignal("https://www.janpara.co.jp/products/detail/?id=123456"), true);
+  assert.equal(hasStrongProductUrlSignal("https://www.iosys.co.jp/products/detail_99999.html"), true);
   /* 弱い形状はマーカー必須(一覧誤入防止) */
   assert.equal(hasStrongProductUrlSignal("https://pcwrap.com/products/computer-used"), false);
-  assert.equal(hasStrongProductUrlSignal("https://www.pc-koubou.jp/products/detail.php?product_id=1225988"), false);
   assert.equal(hasStrongProductUrlSignal("https://item.rakuten.co.jp/pasonette/c/0000000141/"), false);
+  assert.equal(hasStrongProductUrlSignal("https://fril.jp/category/677"), false);
 });
 test("技術記事・ニュースサイトは候補から除外される", () => {
   // 実際に混入した事故URL

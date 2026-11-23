@@ -87,6 +87,9 @@ export function hasStrongProductUrlSignal(url) {
     if (u.hostname === "item.rakuten.co.jp") return !/(^|\/)c(\/|$)/.test(p);
     if (/\/jp\/auction\/[A-Za-z0-9]+/.test(p)) return true;
     if (/\/item\/[A-Za-z0-9_-]{4,}/.test(p)) return true;
+    if (/detail/i.test(p)) return true;
+    const keys = [...u.searchParams.keys()];
+    if (keys.some((k) => /^(product_id|item_code|itemcode|sku|pid|pr)$/i.test(k))) return true;
     return false;
   } catch {
     return false;
