@@ -7,7 +7,7 @@ import { createHash } from "node:crypto";
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import path from "node:path";
 import { z } from "zod";
-import { isListingPage, canonUrl, extractPriceCandidates, diffBadge } from "./lib/filters.mjs";
+import { isListingPage, canonUrl, extractPriceCandidates, diffBadge, hasProductUrlSignal, detectProductMarkers } from "./lib/filters.mjs";
 
 const ROOT = new URL("..", import.meta.url).pathname;
 const CFG = JSON.parse(await readFile(path.join(ROOT, "config/conditions.json"), "utf8"));
@@ -261,13 +261,41 @@ async function verifyOne(item) {
 
 /* ---------- 差分(diffBadge は lib/filters.mjs を使用) ---------- */
 
+/* ---------- 商品ページ確認(ポジティブ判定) ---------- */
+/* deny-listは未知ショップに漏れるため、URL形状シグナルが無い候補は
+   本文を取得して JSON-LD Product / og:type=product を要求する(無ければ落とす) */
+async function sniffProduct(url) {
+  try {
+    const res = await fetch(url, {
+      headers: { "User-Agent": UA, "Accept-Language": "ja" },
+      redirect: "follow",
+      signal: AbortSignal.timeout(12_000),
+    });
+    if (!res.ok) return false;
+    const buf = await res.arrayBuffer().then((b) => b.slice(0, 300_000));
+    const raw = new TextDecoder("utf-8", { fatal: false }).decode(buf);
+    return detectProductMarkers(raw).isProduct;
+  } catch {
+    return false;
+  }
+}
+
+async function confirmProductPages(candidates) {
+  const needSniff = candidates.filter((it) => !hasProductUrlSignal(it.url));
+  const results = await mapPool(needSniff, 4, (it) => sniffProduct(it.url));
+  const sniffOk = new Set(needSniff.filter((it, i) => results[i]).map((it) => it.url));
+  const dropped = needSniff.length - sniffOk.size;
+  console.log(`[ingest] product-page confirm: url-signal=${candidates.length - needSniff.length}, sniff-ok=${sniffOk.size}, dropped-no-marker=${dropped}`);
+  return candidates.filter((it) => hasProductUrlSignal(it.url) || sniffOk.has(it.url));
+}
+
 /* ---------- main ---------- */
 const started = now();
 console.log(`[ingest] start ${started} model=${GEMINI_MODEL}`);
 
-const raw = await primarySearch();
-console.log(`[ingest] primary candidates: ${raw.length}`);
-if (!raw.length) {
+const candidates = await primarySearch();
+console.log(`[ingest] primary candidates: ${candidates.length}`);
+if (!candidates.length) {
   const prevPath = path.join(ROOT, "data/latest.json");
   try {
     const prev = JSON.parse(await readFile(prevPath, "utf8"));
@@ -279,6 +307,8 @@ if (!raw.length) {
   console.error("[error] 検索0件かつ前回データなし");
   process.exit(1);
 }
+
+const raw = await confirmProductPages(candidates);
 
 const statuses = await mapPool(raw, 5, (it) => httpStatus(it.url));
 raw.forEach((it, i) => { it.factcheck = { http_status: statuses[i], verdict: null, checked_at: null, issues: [] }; });

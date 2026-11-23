@@ -9,7 +9,10 @@
 
 import test from "node:test";
 import assert from "node:assert/strict";
-import { isListingPage, canonUrl, extractPriceCandidates, diffBadge } from "../scripts/lib/filters.mjs";
+import {
+  isListingPage, canonUrl, extractPriceCandidates, diffBadge,
+  hasProductUrlSignal, detectProductMarkers,
+} from "../scripts/lib/filters.mjs";
 
 test("技術記事・ニュースサイトは候補から除外される", () => {
   // 実際に混入した事故URL
@@ -74,4 +77,32 @@ test("diffBadge: 死リンクはNEWにならずsold_out優先", () => {
   assert.equal(diffBadge(null, { id: "y", factcheck: { http_status: 200 } }), "new");
   assert.equal(diffBadge(prev, { id: "x", price_yen: 80000, factcheck: { http_status: 200 } }), "price_down");
   assert.equal(diffBadge(prev, { id: "x", price_yen: 95000, factcheck: { http_status: 200 } }), null);
+});
+
+test("未知ショップの絞り込み/カテゴリURLは商品シグナルを持たない(実事故: mediator)", () => {
+  const url = "https://www.mediator.co.jp/shop/r/r110_sr/?filtercode3=8&filtercode13=1&filtercode101=27";
+  assert.equal(isListingPage(url), false); // deny-list は素通りする(既知の事故の再現)
+  assert.equal(hasProductUrlSignal(url), false); // だからポジティブ判定で落とす
+});
+
+test("既知の商品URL形状はポジティブ判定を通る", () => {
+  assert.equal(hasProductUrlSignal("https://jp.mercari.com/item/m14763685413"), true);
+  assert.equal(hasProductUrlSignal("https://paypayfleamarket.yahoo.co.jp/item/z726344624"), true);
+  assert.equal(hasProductUrlSignal("https://www.pc-koubou.jp/products/detail.php?product_id=1225988"), true);
+  assert.equal(hasProductUrlSignal("https://item.rakuten.co.jp/e-fellows5/12100134/"), true);
+  assert.equal(hasProductUrlSignal("https://page.auctions.yahoo.co.jp/jp/auction/u123456789"), true);
+  assert.equal(hasProductUrlSignal("https://example.com/shop/g/gAB12345/"), true);
+  assert.equal(hasProductUrlSignal("https://example.co.jp/products/detail/12345"), true);
+});
+
+test("本文スニフ: JSON-LD Product / og:type=product で商品ページと判定", () => {
+  assert.equal(detectProductMarkers('<script type="application/ld+json">{"@type":"Product","name":"RTX3060 PC"}</script>').isProduct, true);
+  assert.equal(detectProductMarkers('<meta property="og:type" content="product">').isProduct, true);
+  assert.equal(detectProductMarkers('<meta content="product" property="og:type">').isProduct, true);
+  // 一覧グリッド(カートボタンだけ・ItemList)は商品ページとしない
+  const listing = '<script type="application/ld+json">{"@type":"ItemList"}</script><button>カートに入れる</button>';
+  const r = detectProductMarkers(listing);
+  assert.equal(r.isProduct, false);
+  assert.ok(r.reasons.includes("cart-cta"));
+  assert.equal(detectProductMarkers("<html><body>ただの記事</body></html>").isProduct, false);
 });

@@ -4,12 +4,14 @@
 
 import test from "node:test";
 import assert from "node:assert/strict";
-import { isListingPage as libFilter } from "../scripts/lib/filters.mjs";
-import { isListingPage as workerFilter } from "../worker/src/core.mjs";
+import { isListingPage as libFilter, hasProductUrlSignal as libSignal, detectProductMarkers as libDetect } from "../scripts/lib/filters.mjs";
+import { isListingPage as workerFilter, hasProductUrlSignal as workerSignal, detectProductMarkers as workerDetect } from "../worker/src/core.mjs";
 
 const CASES = [
   // 事故実例: 技術記事
   "https://pc.watch.impress.co.jp/docs/column/nishikawa/2064084.html",
+  // 事故実例: 未知ショップの絞り込み/カテゴリURL
+  "https://www.mediator.co.jp/shop/r/r110_sr/?filtercode3=8&filtercode13=1&filtercode101=27",
   // 一覧・カテゴリ
   "https://search.rakuten.co.jp/search/mall/rtx3060/",
   "https://kakaku.com/used/pc/ca=0010/",
@@ -25,8 +27,22 @@ const CASES = [
   "https://example.com/products/detail?id=1",
 ];
 
+const HTMLS = [
+  '<script type="application/ld+json">{"@type":"Product"}</script>',
+  '<meta property="og:type" content="product">',
+  '<script type="application/ld+json">{"@type":"ItemList"}</script><button>カートに入れる</button>',
+  "<html><body>ただのページ</body></html>",
+];
+
 test("worker と lib のURLフィルタ判定が一致する", () => {
   for (const url of CASES) {
-    assert.equal(workerFilter(url), libFilter(url), `parity divergence: ${url}`);
+    assert.equal(workerFilter(url), libFilter(url), `parity divergence (isListingPage): ${url}`);
+    assert.equal(workerSignal(url), libSignal(url), `parity divergence (hasProductUrlSignal): ${url}`);
+  }
+});
+
+test("worker と lib の商品マーカー判定が一致する", () => {
+  for (const html of HTMLS) {
+    assert.equal(workerDetect(html).isProduct, libDetect(html).isProduct, `parity divergence (detectProductMarkers): ${html.slice(0, 40)}`);
   }
 });
