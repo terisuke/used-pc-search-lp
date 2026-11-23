@@ -204,7 +204,7 @@
   }
 
   function render() {
-    if (!state.loaded) return;
+    if (!state.loaded) return 0;
     const shown = applyFilters(state.items).sort(cmp);
     els.itemsBody.innerHTML = shown.length
       ? shown.map(rowHtml).join("")
@@ -222,6 +222,7 @@
         btn.setAttribute("aria-expanded", btn.dataset.id === state.selectedId ? "true" : "false");
       }
     }
+    return shown.length;
   }
 
   /* --- 詳細パネル --- */
@@ -341,6 +342,8 @@
     errorBox.hidden = true;
     progress.hidden = false;
     const fd = new FormData(els.rtForm);
+    /* リアルタイム結果はスペック未照合のため、一覧フィルタをリセットして全件見える状態にする */
+    els.filterForm.reset();
     progress.textContent = "検索中…(一次検索に最大30秒程度)";
     els.rtSubmit.disabled = true;
     try {
@@ -365,9 +368,9 @@
       }));
       $("rt-restore").hidden = false;
       els.generatedAt.textContent = `リアルタイム(${fmtDate(data.generated_at)})`;
-      render();
+      const shown = render();
       scrollToResults();
-      progress.textContent = `リアルタイム検索完了: ${state.items.length} 件を下の一覧に表示しました。上位行から順にスペック照合中…`;
+      progress.textContent = `リアルタイム検索完了: ${state.items.length} 件取得 → ${shown} 件を下の一覧に表示中（フィルタは指定なしにリセット済み）。上位行から順にスペック照合します…`;
       lazyVerifyTop(5, progress);
     } catch (err) {
       errorBox.hidden = false;
@@ -405,10 +408,11 @@
         /* 個別照合の失敗は無視(次サイクルで補完) */
       }
       done++;
-      if (progressEl) progressEl.textContent = `リアルタイム検索完了: ${state.items.length} 件。照合 ${done}/${targets.length}…`;
-      render();
+      const shown = render();
+      if (progressEl) progressEl.textContent = `リアルタイム検索完了: ${state.items.length} 件取得 → ${shown} 件表示中（照合 ${done}/${targets.length}）`;
     }
-    if (progressEl) progressEl.textContent = `リアルタイム検索完了: ${state.items.length} 件(照合 ${done} 件)。「定期データに戻す」で復帰できます。`;
+    const shown = render();
+    if (progressEl) progressEl.textContent = `リアルタイム検索完了: ${state.items.length} 件取得 → ${shown} 件表示中（照合 ${done} 件）。「定期データに戻す」で復帰できます。`;
   }
 
   const pickDefined = (o) => Object.fromEntries(Object.entries(o || {}).filter(([, v]) => v != null));

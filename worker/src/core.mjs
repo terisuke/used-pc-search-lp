@@ -202,10 +202,19 @@ async function extractSpecs(env, items) {
 }
 
 /* ---------- POST /search ---------- */
+export function buildMarketQuery(body) {
+  const parts = ["中古 デスクトップPC"];
+  if (body.ram) parts.push(`メモリ${body.ram}GB`);
+  parts.push("メルカリ ヤフオク フリマ");
+  return parts.join(" ");
+}
+
 export async function handleSearch(env, body) {
   try {
     const query = buildQuery(body || {});
-    const results = await perplexitySearch(env, query);
+    const queries = [...new Set([query, buildMarketQuery(body || {})])];
+    const resultSets = await Promise.all(queries.map((q) => perplexitySearch(env, q).catch(() => [])));
+    const results = resultSets.flat();
     const seen = new Set();
     const candidates = [];
     for (const r of results) {
