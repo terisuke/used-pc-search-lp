@@ -309,17 +309,88 @@
     });
   }
 
-  /* --- リアルタイム検索 (Phase 3 で有効化) --- */
-  const WORKER_URL = null; // Phase 3 で差し込み
-  els.rtForm.addEventListener("submit", (e) => {
-    if (!WORKER_URL) e.preventDefault(); // 準備中は画面遷移・再読込を防止
-  });
-  if (!WORKER_URL) {
-    els.rtSubmit.disabled = true;
-    els.rtSubmit.setAttribute("aria-disabled", "true");
-  } else {
-    els.rtSubmit.removeAttribute("aria-disabled");
+  /* --- リアルタイム検索 (Worker構成で有効化) --- */
+  let WORKER_URL = null;
+  const autoItems = () => state.autoItems || state.items;
+
+  function setRtReady(ready) {
+    els.rtSubmit.disabled = !ready;
+    if (ready) {
+      els.rtSubmit.removeAttribute("aria-disabled");
+      $("rt-note").textContent = "条件を指定して検索すると、最新の候補をリアルタイムに取得します(30秒程度かかることがあります)。";
+    }
   }
+
+  async function loadWorkerConfig() {
+    try {
+      const res = await fetch("data/worker-config.json", { cache: "no-store" });
+      if (!res.ok) return;
+      const cfg = await res.json();
+      if (cfg && typeof cfg.worker_url === "string" && /^https:\/\//.test(cfg.worker_url)) {
+        WORKER_URL = cfg.worker_url;
+        setRtReady(true);
+      }
+    } catch {
+      /* 構成ファイル無し — 準備中のまま */
+    }
+  }
+
+  async function doRealtimeSearch() {
+    const progress = $("rt-progress");
+    const errorBox = $("rt-error");
+    errorBox.hidden = true;
+    progress.hidden = false;
+    const fd = new FormData(els.rtForm);
+    progress.textContent = "検索中…(一次検索に最大30秒程度)";
+    els.rtSubmit.disabled = true;
+    try {
+      const res = await fetch(`${WORKER_URL}/search`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          gpu: fd.get("rt-gpu") || "",
+          price: Number(fd.get("rt-price")) || null,
+          free: fd.get("rt-free") || "",
+        }),
+        signal: AbortSignal.timeout(60_000),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      state.autoItems = state.autoItems || state.items;
+      state.items = (data.items || []).map((it) => ({
+        ...it,
+        updated_at: data.generated_at || new Date().toISOString(),
+        history: it.history || { first_seen: null, last_seen: null, prev_price_yen: null, badge: null },
+      }));
+      $("rt-restore").hidden = false;
+      els.generatedAt.textContent = `リアルタイム(${fmtDate(data.generated_at)})`;
+      render();
+      progress.textContent = `リアルタイム検索完了: ${state.items.length} 件。「定期データに戻す」で通常表示に復帰できます。`;
+    } catch (err) {
+      errorBox.hidden = false;
+      errorBox.textContent = `リアルタイム検索に失敗しました: ${err.message}。少し待って再試行してください。`;
+      progress.hidden = true;
+    } finally {
+      if (WORKER_URL) els.rtSubmit.disabled = false;
+    }
+  }
+
+  function restoreAuto() {
+    if (!state.autoItems) return;
+    state.items = state.autoItems;
+    state.autoItems = null;
+    $("rt-restore").hidden = true;
+    $("rt-progress").hidden = true;
+    init(); // 定期データを再取得
+  }
+
+  $("rt-restore").addEventListener("click", restoreAuto);
+
+  els.rtForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    if (WORKER_URL) doRealtimeSearch();
+  });
+  setRtReady(false);
 
   /* --- ターゲットスペックボックス --- */
   async function loadSpecBox() {
@@ -375,5 +446,6 @@
   }
 
   loadSpecBox();
+  loadWorkerConfig();
   init();
 })();

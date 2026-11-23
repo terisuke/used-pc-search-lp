@@ -71,7 +71,7 @@ jobs:
           mkdir -p _site/assets _site/data
           cp index.html _site/
           cp -r assets/. _site/assets/
-          cp data/latest.json data/spec-review-latest.json data/spec-review-latest.md _site/data/ 2>/dev/null || true
+          cp data/latest.json data/spec-review-latest.json data/spec-review-latest.md data/worker-config.json _site/data/ 2>/dev/null || true
       - uses: actions/upload-pages-artifact@v4
         with:
           path: _site
