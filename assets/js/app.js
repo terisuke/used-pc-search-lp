@@ -72,16 +72,18 @@
   function rankOk(item, min) {
     if (!min) return true;
     const r = RANK_ORDER[item.rank];
-    return r !== undefined && r <= RANK_ORDER[min];
+    if (r === undefined) return true; // ランク不明(マーケットプレイス等)は除外しない
+    return r <= RANK_ORDER[min];
   }
 
   function gpuOk(item, cond) {
     if (!cond) return true;
-    const name = `${item.gpu || ""}`.toLowerCase();
-    const vram = item.gpu_vram_gb || 0;
-    if (cond === "rtx3060-12") return name.includes("rtx 3060") && vram >= 12;
-    if (cond === "vram12") return vram >= 12;
-    if (cond === "vram16") return vram >= 16;
+    const name = `${item.gpu || ""} ${item.title || ""}`.toLowerCase().replace(/[\s\u00a0\-]/g, "");
+    const vram = item.gpu_vram_gb || null;
+    const is3060 = name.includes("rtx3060") && !name.includes("3060ti");
+    if (cond === "rtx3060-12") return is3060; // RTX 3060 desktop は常に12GB
+    if (cond === "vram12") return vram != null ? vram >= 12 : is3060;
+    if (cond === "vram16") return vram != null ? vram >= 16 : false;
     return true;
   }
 
