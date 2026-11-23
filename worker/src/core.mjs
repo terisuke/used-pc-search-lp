@@ -179,27 +179,13 @@ export async function handleSearch(env, body) {
     const statuses = await Promise.all(top.map((it) => httpStatus(it.url)));
     top.forEach((it, i) => { it.factcheck.http_status = statuses[i]; });
     const live = top.filter((it) => it.factcheck.http_status !== 404);
-    let specs = [];
-    try { specs = await extractSpecs(env, live); } catch (e) { /* 抽出失敗は許容 */ }
-    for (const s of specs) {
-      const it = live[s.index];
-      if (!it) continue;
-      it.shop = s.shop ?? it.host;
-      it.title = ((s.title ?? it.search_title) || "").slice(0, 120);
-      it.price_yen = s.price_yen ?? null;
-      it.gpu = s.gpu ?? null;
-      it.gpu_vram_gb = s.gpu_vram_gb ?? null;
-      it.cpu = s.cpu ?? null;
-      it.ram_gb = s.ram_gb ?? null;
-      it.storage = s.storage ?? null;
-      it.rank = s.rank ?? null;
-    }
     for (const it of live) {
-      it.shop ??= it.host;
-      it.title ??= it.search_title;
-      it.price_yen ??= null; it.gpu ??= null; it.gpu_vram_gb ??= null;
-      it.cpu ??= null; it.ram_gb ??= null; it.storage ??= null; it.rank ??= null;
+      it.shop = it.host;
+      it.title = it.search_title.slice(0, 120);
+      it.price_yen = null; it.gpu = null; it.gpu_vram_gb = null;
+      it.cpu = null; it.ram_gb = null; it.storage = null; it.rank = null;
     }
+    /* 一次検索は即返し(要件: 30秒目標)。スペック抽出・照合はクライアントから /verify で遅延実行 */
     return {
       status: 200,
       body: {
@@ -207,7 +193,7 @@ export async function handleSearch(env, body) {
         source: "realtime",
         query,
         items: top,
-        note: "価格不明の行は『詳細→個別照合』または数分後の定期データで補完されます",
+        note: "価格・スペックは行ごとの照合(/verify)または次回の定期取得で補完されます",
       },
     };
   } catch (e) {
