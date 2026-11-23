@@ -1,0 +1,42 @@
+{
+  "reviewed_at": "2026-11-23",
+  "engine_basis": "llama.cpp (--n-cpu-moe / MoE expert offload) + Strata (Qwen MoE expert-streaming)",
+  "profiles": [
+    {
+      "id": "mainstream-moe",
+      "label": "標準: MoEストリーミング運用",
+      "description": "Qwen3.8系 100B級MoEをStrata/llama.cppのエキスパートストリーミングで動かす構成。エキスパートをRAMに置くため system RAM が主戦力",
+      "min_vram_gb": 12,
+      "preferred_vram_gb": 16,
+      "min_ram_gb": 64,
+      "min_cpu_cores": 8,
+      "storage": "NVMe SSD 1TB以上",
+      "target_models": "Qwen3.8-Flash-Next級 (125B MoE), 35B級MoE"
+    },
+    {
+      "id": "all-in-vram",
+      "label": "高速: フルGPU展開",
+      "description": "35B級MoEをVRAMに全展開し高token/sで運用する構成",
+      "min_vram_gb": 16,
+      "preferred_vram_gb": 20,
+      "min_ram_gb": 32,
+      "min_cpu_cores": 6,
+      "storage": "NVMe SSD 1TB以上",
+      "target_models": "35B級MoE (Q4), 14B級dense"
+    }
+  ],
+  "search_target": {
+    "gpu_priority": "RTX 3060 12GB / RTX 4060 Ti 16GB / RX 7600 XT 16GB",
+    "min_vram_gb": 12,
+    "preferred_vram_gb": 16,
+    "ram_tiers_gb": [32, 64],
+    "max_price_yen": 110000
+  },
+  "sources": [
+    { "title": "VRAM needed for local LLMs (2026 table)", "url": "https://llmconfigurator.com/en/guides/vram-requirements-guide", "date": "2026" },
+    { "title": "Strata — Local Inference Engine for Qwen MoE", "url": "https://github.com/Niko1221/Strata", "date": "2026" },
+    { "title": "Strata LLM Engine: Requirements and Setup", "url": "https://vdf.ai/blog/strata-local-llm", "date": "2026" },
+    { "title": "Best Local LLM for 16GB VRAM / 32GB RAM (2026)", "url": "https://www.betterclaw.io/blog/best-local-llm-16gb-vram-32gb-ram", "date": "2026" },
+    { "title": "llama.cpp VRAM Requirements Guide", "url": "https://localllm.in/blog/llamacpp-vram-requirements-for-local-llms", "date": "2026" }
+  ]
+}

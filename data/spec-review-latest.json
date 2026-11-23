@@ -1,0 +1,81 @@
+{
+  "reviewed_at": "2026-11-23",
+  "engine_basis": "llama.cpp (--n-cpu-moe / --moe-cache-mib / --moe-cache-cpu-share / --ple) + Strata (Qwen MoE expert-streaming)",
+  "profiles": [
+    {
+      "id": "mainstream-moe",
+      "label": "標準: MoEストリーミング運用",
+      "description": "Qwen3.8-Flash-Next級(125B MoE)をStrataやllama.cppのGPUキャッシュ(--moe-cache-mib)とSSDテーブル参照(--ple)で動かす構成。エキスパートをRAMに置き、ホットな層を12-16GB VRAMにキャッシュする",
+      "min_vram_gb": 12,
+      "preferred_vram_gb": 16,
+      "min_ram_gb": 64,
+      "min_cpu_cores": 8,
+      "storage": "NVMe SSD 1TB以上",
+      "target_models": "Qwen3.8-Flash-Next級 (125B MoE / Q4・低bit), 35B級MoE"
+    },
+    {
+      "id": "all-in-vram",
+      "label": "高速: フルGPU展開",
+      "description": "27B〜35B級モデルをVRAMに全展開し高token/sで運用する構成",
+      "min_vram_gb": 16,
+      "preferred_vram_gb": 20,
+      "min_ram_gb": 32,
+      "min_cpu_cores": 6,
+      "storage": "NVMe SSD 1TB以上",
+      "target_models": "35B級MoE (Q4), Qwen3.8 27B (Q4_K_M), 14B級dense"
+    }
+  ],
+  "search_target": {
+    "gpu_priority": "RTX 3060 12GB / RTX 4060 Ti 16GB / RX 7600 XT 16GB / RX 6800 16GB",
+    "min_vram_gb": 12,
+    "preferred_vram_gb": 16,
+    "ram_tiers_gb": [
+      32,
+      64
+    ],
+    "max_price_yen": 110000
+  },
+  "sources": [
+    {
+      "title": "How Much VRAM for Local LLMs? Table by Model (2026)",
+      "url": "https://llmconfigurator.com/en/guides/vram-requirements-guide",
+      "date": "2026-11-19"
+    },
+    {
+      "title": "Qwen3.8 Flash Next VRAM Requirements to Run Locally",
+      "url": "https://vramglass.com/model/qwen/qwen3-8-flash-next?market=amazon_jp",
+      "date": "2026-11-22"
+    },
+    {
+      "title": "Qwen3.8-Flash-Next: How to Run Locally (Unsloth)",
+      "url": "https://unsloth.ai/docs/models/qwen3.8-next",
+      "date": "2026-11-17"
+    },
+    {
+      "title": "How to Run Qwen3.8 Flash Next Locally",
+      "url": "https://atomic.chat/blog/guides/how-to-run-qwen-3-8-flash-next-locally",
+      "date": "2026-11-22"
+    },
+    {
+      "title": "Strata Local AI: Run Qwen3.8-Flash-Next on a Gaming PC",
+      "url": "https://aitokenprice.com/guides/strata-local-ai",
+      "date": "2026-11-18"
+    },
+    {
+      "title": "Strata: Run Qwen3.8-Flash-Next on your own PC",
+      "url": "https://openfree.tools/strata",
+      "date": "2026-11-15"
+    },
+    {
+      "title": "llama.cpp v0.7.0 Released with MoE GPU Cache and New Models",
+      "url": "https://localmodelwatch.tsuchitsuchi.com/en/2026/11/17/llamacpp-v0-7-0-released/",
+      "date": "2026-11-22"
+    },
+    {
+      "title": "llama.cpp b12191 release notes",
+      "url": "https://whatsnew.fyi/product/llama-cpp/releases/b12191",
+      "date": "2026-11-22"
+    }
+  ],
+  "change_summary": "RAM/VRAMの主要要件(12-16GB VRAM、32-64GB RAM)は維持しつつ、llama.cpp v0.7.0〜1.0のMoE GPUキャッシュ(--moe-cache-mib/--moe-cache-cpu-share)やSSDからのn-gramテーブル読み込み(--ple)をengine_basisとプロファイル説明に反映しました。また、all-in-vramの対象にQwen3.8 27Bを追加し、Strataの推奨GPUに合わせてRX 6800 16GBをgpu_priorityに追記するとともに、sourcesを最新の検索結果URLへ更新しました。"
+}

@@ -270,6 +270,31 @@
     els.rtSubmit.removeAttribute("aria-disabled");
   }
 
+  /* --- ターゲットスペックボックス --- */
+  async function loadSpecBox() {
+    const box = $("spec-box");
+    try {
+      const res = await fetch("data/spec-review-latest.json", { cache: "no-store" });
+      if (!res.ok) return;
+      const spec = await res.json();
+      if (!spec || !Array.isArray(spec.profiles) || !spec.profiles.length) return;
+      $("spec-reviewed-at").textContent = `最終見直し ${fmtDate(spec.reviewed_at)}`;
+      $("spec-profiles").innerHTML = spec.profiles.map((p) => `
+        <div class="spec-card">
+          <h3>${esc(p.label)}</h3>
+          <dl>
+            <dt>VRAM</dt><dd>最小${esc(p.min_vram_gb)}GB / 推奨${esc(p.preferred_vram_gb)}GB</dd>
+            <dt>RAM</dt><dd>最小${esc(p.min_ram_gb)}GB</dd>
+            <dt>CPU</dt><dd>${esc(p.min_cpu_cores)}コア以上</dd>
+            <dt>想定</dt><dd>${esc(p.target_models)}</dd>
+          </dl>
+        </div>`).join("");
+      box.hidden = false;
+    } catch {
+      /* specボックスは任意 — 失敗時は非表示のまま */
+    }
+  }
+
   /* --- 初期化 --- */
   async function init() {
     try {
@@ -292,5 +317,6 @@
     }
   }
 
+  loadSpecBox();
   init();
 })();
