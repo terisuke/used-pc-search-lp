@@ -403,6 +403,11 @@
             it.price_yen = out.factcheck.page_price_yen;
             it.factcheck.price_filled_from_page = true;
           }
+          /* 売り切れ検知された行はリアルタイム一覧から除外 */
+          if (it.factcheck.verdict === "mismatch" &&
+              (it.factcheck.issues || []).some((s) => /売り切れ|在庫切れ|販売終了/.test(s))) {
+            state.items = state.items.filter((x) => x.id !== it.id);
+          }
         }
       } catch {
         /* 個別照合の失敗は無視(次サイクルで補完) */
