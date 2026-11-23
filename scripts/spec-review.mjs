@@ -113,7 +113,8 @@ const proposedRaw = await geminiJson(
   "2026年11月時点で『中古デスクトップPCでローカルLLM(Qwen系MoE)を実際に運用する』ための" +
   "ターゲットスペック定義を提案してください。llama.cppのMoEオフロード(--n-cpu-moe)や" +
   "Strataのようなエキスパートストリーミング時代の要件を反映し、RAM/VRAM/ストレージの" +
-  "妥当な最小値と推奨値を決めてください。根拠URLは必ずsourcesに反映。" +
+  "妥当な最小値と推奨値を決めてください。**RAM 16GBは『増設前提の拡張ベース(upgrade-base)』" +
+  "プロファイルとして必ず含めること**。根拠URLは必ずsourcesに反映。" +
   `現在の定義(参考・維持すべき場合は変更しない): ${JSON.stringify(current)}` +
   "\n\n検索結果:\n" + evidence.map((e, i) => `[${i}] ${e.title} (${e.url}, updated:${e.last_updated || "?"})\n${e.snippet}`).join("\n\n") +
   "\n\nchange_summaryには現行定義との差分を日本語1-3文で。変更が不要なら「変更不要」。",
@@ -179,16 +180,30 @@ await writeFile(path.join(ROOT, "data/spec-review-latest.md"), md);
 
 if (changed && GITHUB_TOKEN) {
   const issueBody = md + "\n---\nこのIssueは週次spec-reviewが自動生成しました。問題なければ `config/target-spec.json` を提案内容へ手動更新してください(検索条件への自動反映は行いません)。\n";
-  const res = await fetch(`https://api.github.com/repos/${REPO}/issues`, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${GITHUB_TOKEN}`, "Content-Type": "application/json", Accept: "application/vnd.github+json" },
-    body: JSON.stringify({ title: `spec-review: ${today} — ターゲットスペック変更提案`, body: issueBody, labels: ["spec-review"] }),
-  });
+  const headers = { Authorization: `Bearer ${GITHUB_TOKEN}`, "Content-Type": "application/json", Accept: "application/vnd.github+json" };
+  /* 同一ラベルのopen issueがあれば更新(振荡によるIssue量産を防止)、無ければ新規起票 */
+  let existing = null;
+  const listRes = await fetch(`https://api.github.com/repos/${REPO}/issues?labels=spec-review&state=open`, { headers });
+  if (listRes.ok) {
+    const open = await listRes.json();
+    existing = Array.isArray(open) ? open.find((i) => (i.title || "").startsWith("spec-review:")) : null;
+  }
+  const res = existing
+    ? await fetch(`https://api.github.com/repos/${REPO}/issues/${existing.number}`, {
+        method: "PATCH",
+        headers,
+        body: JSON.stringify({ title: `spec-review: ${today} — ターゲットスペック変更提案`, body: issueBody }),
+      })
+    : await fetch(`https://api.github.com/repos/${REPO}/issues`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ title: `spec-review: ${today} — ターゲットスペック変更提案`, body: issueBody, labels: ["spec-review"] }),
+      });
   if (res.ok) {
     const issue = await res.json();
-    console.log(`[spec-review] issue opened: ${issue.html_url}`);
+    console.log(`[spec-review] issue ${existing ? "updated" : "opened"}: ${issue.html_url}`);
   } else {
-    console.error(`[warn] issue create failed: ${res.status} ${(await res.text()).slice(0, 200)}`);
+    console.error(`[warn] issue ${existing ? "update" : "create"} failed: ${res.status} ${(await res.text()).slice(0, 200)}`);
   }
 } else if (changed) {
   console.log("[spec-review] 変更あり(GITHUB_TOKEN無し — Issue起票スキップ)");

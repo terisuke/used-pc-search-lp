@@ -111,9 +111,24 @@
 }
 .sort-btn .arrow {
   font-size: 0.75em;
+  min-width: 1em;
+  display: inline-block;
+}
+.sort-btn .arrow:empty::before {
+  content: "↕";
+  opacity: 0.35;
+}
+#items-table tbody tr:hover td {
+  background: color-mix(in srgb, var(--pico-primary) 7%, transparent);
+}
+@media (prefers-reduced-transparency: reduce) {
+  #items-table tbody tr:hover td { background: none; }
 }
 tr.row-sold-out td {
-  opacity: 0.6;
+  opacity: 0.8;
+}
+tr.row-sold-out .cell-item a:first-child {
+  text-decoration: line-through;
 }
 
 /* --- 詳細パネル --- */
@@ -122,9 +137,6 @@ tr.row-sold-out td {
   border-radius: var(--pico-border-radius);
   padding: 1rem 1.25rem;
   margin-top: 1rem;
-}
-.detail-panel:focus {
-  outline: none;
 }
 .detail-list {
   display: grid;

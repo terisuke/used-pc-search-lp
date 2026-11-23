@@ -17,7 +17,7 @@ concurrency:
 jobs:
   ingest:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
     outputs:
       committed: ${{ steps.data.outputs.committed }}
     steps:
@@ -48,6 +48,9 @@ jobs:
     needs: ingest
     if: needs.ingest.outputs.committed == 'true'
     runs-on: ubuntu-latest
+    concurrency:
+      group: pages # deploy.yml と共有 — 二重deploy競合を直列化
+      cancel-in-progress: true
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -60,7 +63,13 @@ jobs:
       - name: bust asset cache
         run: |
           sed -i "s|assets/js/app.js|assets/js/app.js?v=${GITHUB_SHA:0:8}|g; s|assets/css/app.css|assets/css/app.css?v=${GITHUB_SHA:0:8}|g" index.html
+      - name: assemble site
+        run: |
+          mkdir -p _site/assets _site/data
+          cp index.html _site/
+          cp -r assets/. _site/assets/
+          cp data/latest.json data/spec-review-latest.json data/spec-review-latest.md _site/data/ 2>/dev/null || true
       - uses: actions/upload-pages-artifact@v4
         with:
-          path: .
+          path: _site
       - uses: actions/deploy-pages@v4

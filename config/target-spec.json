@@ -3,6 +3,17 @@
   "engine_basis": "llama.cpp (--n-cpu-moe / MoE expert offload) + Strata (Qwen MoE expert-streaming)",
   "profiles": [
     {
+      "id": "upgrade-base",
+      "label": "拡張前提: 16GB→増設",
+      "description": "16GB搭載機を安価に確保し、空きスロットに後日増設して標準プロファイルへ到達する路線(増設前提・電源/スロット確認要)",
+      "min_vram_gb": 12,
+      "preferred_vram_gb": 12,
+      "min_ram_gb": 16,
+      "min_cpu_cores": 6,
+      "storage": "NVMe SSD 512GB以上(増設可)",
+      "target_models": "35B級MoE (Q4) → 増設後に125B級MoE"
+    },
+    {
       "id": "mainstream-moe",
       "label": "標準: MoEストリーミング運用",
       "description": "Qwen3.8系 100B級MoEをStrata/llama.cppのエキスパートストリーミングで動かす構成。エキスパートをRAMに置くため system RAM が主戦力",
@@ -29,7 +40,7 @@
     "gpu_priority": "RTX 3060 12GB / RTX 4060 Ti 16GB / RX 7600 XT 16GB",
     "min_vram_gb": 12,
     "preferred_vram_gb": 16,
-    "ram_tiers_gb": [32, 64],
+    "ram_tiers_gb": [16, 32, 64],
     "max_price_yen": 110000
   },
   "sources": [
