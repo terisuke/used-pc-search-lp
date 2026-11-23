@@ -1,0 +1,177 @@
+/* 中古PCサーチ — app.css (Pico.css v2 の補助レイヤー) */
+
+/* --- アクセシビリティ基盤 --- */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  background: var(--pico-primary-background);
+  color: var(--pico-primary-inverse);
+  padding: 0.75rem 1rem;
+  z-index: 100;
+}
+.skip-link:focus {
+  left: 0.5rem;
+  top: 0.5rem;
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ターゲットサイズ最小保証 (WCAG 2.2 / 2.5.8) */
+.min-target {
+  min-height: 2.5rem;
+  min-width: 2.5rem;
+}
+
+/* --- バッジ --- */
+.badge {
+  display: inline-block;
+  padding: 0.1rem 0.5rem;
+  border-radius: 0.75rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+.badge-auto {
+  background: #e7f0fa;
+  color: #16437a;
+}
+.badge-new {
+  background: #e6f4ea;
+  color: #116329;
+}
+.badge-price-down {
+  background: #fef2d0;
+  color: #6b4d00;
+}
+.badge-sold-out {
+  background: #fbe5e5;
+  color: #8a1f1f;
+}
+
+@media (prefers-color-scheme: dark) {
+  .badge-auto { background: #1d3a5f; color: #bcd7f5; }
+  .badge-new { background: #1c4128; color: #b8e6c6; }
+  .badge-price-down { background: #5c4a10; color: #f5e3ae; }
+  .badge-sold-out { background: #5f2323; color: #f3c2c2; }
+}
+
+/* --- テーブル --- */
+.table-scroll {
+  overflow-x: auto;
+  border: 1px solid var(--pico-muted-border-color);
+  border-radius: var(--pico-border-radius);
+}
+.table-scroll:focus-visible {
+  outline: 3px solid var(--pico-primary-focus);
+  outline-offset: 2px;
+}
+#items-table {
+  margin-bottom: 0;
+}
+#items-table th,
+#items-table td {
+  white-space: nowrap;
+}
+#items-table .cell-item {
+  white-space: normal;
+  min-width: 16rem;
+}
+
+.sort-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  min-height: 2.5rem; /* 2.5.8 */
+  padding: 0.25rem 0.5rem;
+  background: none;
+  border: none;
+  font: inherit;
+  font-weight: 600;
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  cursor: pointer;
+}
+.sort-btn:focus-visible {
+  outline: 3px solid var(--pico-primary-focus);
+  outline-offset: 2px;
+  border-radius: 0.25rem;
+}
+.sort-btn .arrow {
+  font-size: 0.75em;
+}
+tr.row-sold-out td {
+  opacity: 0.6;
+}
+
+/* --- 詳細パネル --- */
+.detail-panel {
+  border: 1px solid var(--pico-muted-border-color);
+  border-radius: var(--pico-border-radius);
+  padding: 1rem 1.25rem;
+  margin-top: 1rem;
+}
+.detail-panel:focus {
+  outline: none;
+}
+.detail-list {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.35rem 1rem;
+  margin-bottom: 1rem;
+}
+.detail-list dt {
+  font-weight: 600;
+}
+.detail-list dd {
+  margin: 0;
+}
+
+/* --- フォームまわり --- */
+.form-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+.result-status {
+  margin-top: 0.75rem;
+  font-weight: 600;
+}
+.legend {
+  font-size: 0.88rem;
+  color: var(--pico-muted-color);
+}
+.error-text {
+  color: #b3261e;
+  font-weight: 600;
+}
+@media (prefers-color-scheme: dark) {
+  .error-text { color: #f2b8b5; }
+}
+
+/* --- 更新時刻など --- */
+#generated-at {
+  font-weight: 600;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
