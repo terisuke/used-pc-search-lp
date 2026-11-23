@@ -10,12 +10,19 @@
     missing: "❌ リンク切れ",
     unchecked: "― 未照合",
   };
+  const STATUS_RANK = { verified: 0, partial: 1, unchecked: 2, mismatch: 3, missing: 4 };
+  const SORT_LABEL = {
+    price_yen: "価格", gpu: "GPU", ram_gb: "メモリ", rank: "ランク",
+    updated_at: "更新", status: "ステータス", shop: "店舗",
+  };
 
   const state = {
     items: [],
+    loaded: false,
     sortKey: "price_yen",
     sortDir: "asc",
     selectedId: null,
+    detailTrigger: null,
   };
 
   const $ = (id) => document.getElementById(id);
@@ -39,13 +46,25 @@
       .replaceAll('"', "&quot;")
       .replaceAll("'", "&#39;");
 
+  /* 外部URLは http/https のみ許可(それ以外はリンク無効化) */
+  const safeUrl = (raw) => {
+    try {
+      const u = new URL(String(raw), location.href);
+      return u.protocol === "http:" || u.protocol === "https:" ? u.href : "#";
+    } catch {
+      return "#";
+    }
+  };
+
   const fmtYen = (n) =>
     Number.isFinite(n) ? `${Math.round(n).toLocaleString("ja-JP")}円` : "—";
 
   const fmtDate = (iso) => {
     if (!iso) return "—";
-    const d = new Date(iso);
-    if (Number.isNaN(d.getTime())) return "—";
+    const s = String(iso);
+    if (!s.includes("T")) return s; // 日付のみは時間を捏造しない
+    const d = new Date(s);
+    if (Number.isNaN(d.getTime())) return s;
     return `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, "0")}/${String(
       d.getDate(),
     ).padStart(2, "0")} ${String(d.getHours()).padStart(2, "0")}:${String(
@@ -80,10 +99,15 @@
     if (!cond) return true;
     const name = `${item.gpu || ""} ${item.title || ""}`.toLowerCase().replace(/[\s\u00a0\-]/g, "");
     const vram = item.gpu_vram_gb || null;
-    const is3060 = name.includes("rtx3060") && !name.includes("3060ti");
-    if (cond === "rtx3060-12") return is3060; // RTX 3060 desktop は常に12GB
-    if (cond === "vram12") return vram != null ? vram >= 12 : is3060;
-    if (cond === "vram16") return vram != null ? vram >= 16 : false;
+    const is3060 =
+      name.includes("rtx3060") &&
+      !name.includes("3060ti") &&
+      !name.includes("30608gb") &&
+      !name.includes("30606gb") &&
+      (vram == null || vram >= 12);
+    if (cond === "rtx3060-12") return is3060;
+    if (cond === "vram12") return vram != null ? vram >= 12 : is3060 || /1[2-9]gb|2\dgb/.test(name);
+    if (cond === "vram16") return vram != null ? vram >= 16 : /1[6-9]gb|2\dgb/.test(name);
     return true;
   }
 
@@ -121,27 +145,31 @@
       d = nullsLast(a.rank, b.rank) || (RANK_ORDER[a.rank] ?? 9) - (RANK_ORDER[b.rank] ?? 9);
     } else if (k === "updated_at") {
       d = nullsLast(a[k], b[k]) || String(a[k]).localeCompare(String(b[k]));
+    } else if (k === "status") {
+      d = (STATUS_RANK[statusOf(a)] ?? 9) - (STATUS_RANK[statusOf(b)] ?? 9);
+    } else if (k === "shop") {
+      d = nullsLast(a.shop, b.shop) || String(a.shop ?? "").localeCompare(String(b.shop ?? ""), "ja");
     } else {
-      d = String(a[k] ?? "").localeCompare(String(b[k] ?? ""), "ja");
+      d = nullsLast(a[k], b[k]) || String(a[k] ?? "").localeCompare(String(b[k] ?? ""), "ja");
     }
     return state.sortDir === "asc" ? d : -d;
   }
 
-  function updateAriaSort() {
+  function updateAriaSort(active = true) {
     for (const btn of document.querySelectorAll(".sort-btn")) {
       const th = btn.closest("th");
+      const arrow = btn.querySelector(".arrow");
+      if (!active) {
+        th.setAttribute("aria-sort", "none");
+        if (arrow) arrow.textContent = "";
+        continue;
+      }
       if (btn.dataset.key === state.sortKey) {
         th.setAttribute("aria-sort", state.sortDir === "asc" ? "ascending" : "descending");
-        btn.querySelector(".arrow")?.remove();
-        btn.insertAdjacentHTML(
-          "beforeend",
-          state.sortDir === "asc"
-            ? ' <span class="arrow" aria-hidden="true">▲</span>'
-            : ' <span class="arrow" aria-hidden="true">▼</span>',
-        );
+        if (arrow) arrow.textContent = state.sortDir === "asc" ? "▲" : "▼";
       } else {
         th.setAttribute("aria-sort", "none");
-        btn.querySelector(".arrow")?.remove();
+        if (arrow) arrow.textContent = "";
       }
     }
   }
@@ -156,6 +184,7 @@
     const fc = it.factcheck || {};
     const issues = (fc.issues || []).map((s) => esc(s)).join("・");
     const title = esc(it.title || "(商品名不明)");
+    const href = esc(safeUrl(it.url || "#"));
     return `<tr class="${st === "missing" ? "row-sold-out" : ""}" data-id="${esc(it.id)}">
       <td>${STATUS_LABEL[st]}</td>
       <td>${fmtYen(it.price_yen)}</td>
@@ -164,7 +193,7 @@
       <td>${esc(it.rank || "—")}</td>
       <td><time datetime="${esc(it.updated_at || "")}">${fmtDate(it.updated_at)}</time></td>
       <td class="cell-item">
-        <a href="${esc(it.url || "#")}" target="_blank" rel="noopener">${title}</a>${badgeHtml}<br>
+        <a href="${href}" target="_blank" rel="noopener noreferrer">${title}</a>${badgeHtml}<br>
         <small>${esc(it.shop || "")}</small>
         <button type="button" class="outline secondary detail-btn min-target" data-id="${esc(
           it.id,
@@ -175,43 +204,57 @@
   }
 
   function render() {
+    if (!state.loaded) return;
     const shown = applyFilters(state.items).sort(cmp);
     els.itemsBody.innerHTML = shown.length
       ? shown.map(rowHtml).join("")
-      : '<tr><td colspan="7">条件に合う候補がありません。条件を緩めてください。</td></tr>';
-    els.status.textContent = `自動取得データから ${shown.length} / ${state.items.length} 件を表示中（並び替え: ${
-      state.sortKey === "price_yen" ? "価格" : state.sortKey
-    } ${state.sortDir === "asc" ? "昇順" : "降順"}）`;
+      : '<tr><td colspan="7">条件に合う候補がありません。条件を緩めるか「リセット」を押してください。</td></tr>';
+    const sortText = `並び替え: ${SORT_LABEL[state.sortKey] || state.sortKey} ${state.sortDir === "asc" ? "昇順" : "降順"}`;
+    els.status.textContent = shown.length === state.items.length
+      ? `全 ${state.items.length} 件を表示中（${sortText}）— 条件で絞り込めます`
+      : `${shown.length} / ${state.items.length} 件を表示中（フィルタ適用中・${sortText}）`;
     updateAriaSort();
+    /* 再描画後に詳細パネルと行状態を整合させる */
+    if (state.selectedId && !shown.some((it) => it.id === state.selectedId)) {
+      closeDetail(false);
+    } else if (state.selectedId) {
+      for (const btn of document.querySelectorAll(".detail-btn")) {
+        btn.setAttribute("aria-expanded", btn.dataset.id === state.selectedId ? "true" : "false");
+      }
+    }
   }
 
   /* --- 詳細パネル --- */
-  function showDetail(id) {
+  function showDetail(id, triggerBtn) {
     const it = state.items.find((x) => x.id === id);
     if (!it) return;
+    state.detailTrigger = triggerBtn || state.detailTrigger;
     const st = statusOf(it);
     const fc = it.factcheck || {};
     const h = it.history || {};
+    const href = esc(safeUrl(it.url || "#"));
     const rows = [
-      ["ショップ", it.shop || "—"],
-      ["商品名", it.title || "—"],
+      ["ショップ", esc(it.shop || "—")],
+      ["商品名", esc(it.title || "—")],
       ["価格", fmtYen(it.price_yen)],
-      ["CPU", it.cpu || "—"],
-      ["GPU", it.gpu ? `${it.gpu}${it.gpu_vram_gb ? ` (${it.gpu_vram_gb}GB)` : ""}` : "—"],
-      ["メモリ", it.ram_gb ? `${it.ram_gb}GB` : "—"],
-      ["ストレージ", it.storage || "—"],
-      ["ランク", it.rank || "—"],
+      ["CPU", esc(it.cpu || "—")],
+      ["GPU", esc(it.gpu ? `${it.gpu}${it.gpu_vram_gb ? ` (${it.gpu_vram_gb}GB)` : ""}` : "—")],
+      ["メモリ", it.ram_gb ? `${esc(it.ram_gb)}GB` : "—"],
+      ["ストレージ", esc(it.storage || "—")],
+      ["ランク", esc(it.rank || "—")],
       ["ステータス", STATUS_LABEL[st]],
-      ["照合メモ", (fc.issues || []).join("／") || "—"],
-      ["HTTP確認", fc.http_status ? String(fc.http_status) : "—"],
-      ["最終照合", fmtDate(fc.checked_at)],
-      ["初出 / 最終確認", `${fmtDate(h.first_seen)} / ${fmtDate(h.last_seen)}`],
+      ["照合メモ", esc((fc.issues || []).join("／") || "—")],
+      ["HTTP確認", esc(fc.http_status ? String(fc.http_status) : "—")],
+      ["ページ上の価格", fc.page_price_yen != null ? fmtYen(fc.page_price_yen) : "—"],
+      ["最終照合", esc(fmtDate(fc.checked_at))],
+      ["初出 / 最終確認", esc(`${fmtDate(h.first_seen)} / ${fmtDate(h.last_seen)}`)],
       ["前回価格", h.prev_price_yen ? fmtYen(h.prev_price_yen) : "—"],
-      ["商品ページ", it.url ? `<a href="${esc(it.url)}" target="_blank" rel="noopener">開く（新しいタブ）</a>` : "—"],
     ];
-    els.detailList.innerHTML = rows
-      .map(([k, v]) => `<dt>${esc(k)}</dt><dd>${v}</dd>`)
-      .join("");
+    els.detailList.innerHTML =
+      rows.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${v}</dd>`).join("") +
+      (it.url
+        ? `<dt>商品ページ</dt><dd><a href="${href}" target="_blank" rel="noopener noreferrer">開く（新しいタブ）</a></dd>`
+        : "<dt>商品ページ</dt><dd>—</dd>");
     els.detailPanel.hidden = false;
     state.selectedId = id;
     for (const btn of document.querySelectorAll(".detail-btn")) {
@@ -220,12 +263,16 @@
     $("detail-heading").focus();
   }
 
-  function closeDetail() {
+  function closeDetail(returnFocus = true) {
     els.detailPanel.hidden = true;
     state.selectedId = null;
     for (const btn of document.querySelectorAll(".detail-btn")) {
       btn.setAttribute("aria-expanded", "false");
     }
+    if (returnFocus && state.detailTrigger && document.contains(state.detailTrigger)) {
+      state.detailTrigger.focus();
+    }
+    state.detailTrigger = null;
   }
 
   /* --- イベント --- */
@@ -240,10 +287,10 @@
     if (state.selectedId === btn.dataset.id) {
       closeDetail();
     } else {
-      showDetail(btn.dataset.id);
+      showDetail(btn.dataset.id, btn);
     }
   });
-  els.detailClose.addEventListener("click", closeDetail);
+  els.detailClose.addEventListener("click", () => closeDetail());
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && !els.detailPanel.hidden) {
       closeDetail();
@@ -264,7 +311,11 @@
 
   /* --- リアルタイム検索 (Phase 3 で有効化) --- */
   const WORKER_URL = null; // Phase 3 で差し込み
+  els.rtForm.addEventListener("submit", (e) => {
+    if (!WORKER_URL) e.preventDefault(); // 準備中は画面遷移・再読込を防止
+  });
   if (!WORKER_URL) {
+    els.rtSubmit.disabled = true;
     els.rtSubmit.setAttribute("aria-disabled", "true");
   } else {
     els.rtSubmit.removeAttribute("aria-disabled");
@@ -278,7 +329,10 @@
       if (!res.ok) return;
       const spec = await res.json();
       if (!spec || !Array.isArray(spec.profiles) || !spec.profiles.length) return;
-      $("spec-reviewed-at").textContent = `最終見直し ${fmtDate(spec.reviewed_at)}`;
+      const reviewed = typeof spec.reviewed_at === "string" && spec.reviewed_at.length <= 10
+        ? spec.reviewed_at
+        : fmtDate(spec.reviewed_at);
+      $("spec-reviewed-at").textContent = `最終見直し ${reviewed}`;
       $("spec-profiles").innerHTML = spec.profiles.map((p) => `
         <div class="spec-card">
           <h3>${esc(p.label)}</h3>
@@ -302,6 +356,7 @@
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       state.items = Array.isArray(data.items) ? data.items : [];
+      state.loaded = true;
       if (data.generated_at) {
         els.generatedAt.textContent = fmtDate(data.generated_at);
         els.generatedAt.setAttribute("datetime", data.generated_at);
@@ -310,9 +365,11 @@
       }
       render();
     } catch (err) {
+      state.loaded = true;
       els.status.textContent = "データの読み込みに失敗しました。ページを再読み込みしてください。";
-      els.itemsBody.innerHTML =
-        '<tr><td colspan="7">データ取得エラー</td></tr>';
+      els.generatedAt.textContent = "不明";
+      els.itemsBody.innerHTML = '<tr><td colspan="7">データ取得エラー</td></tr>';
+      updateAriaSort(false);
       console.error(err);
     }
   }

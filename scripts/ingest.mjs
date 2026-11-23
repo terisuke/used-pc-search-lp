@@ -37,6 +37,21 @@ if (!PERPLEXITY_KEY || !GEMINI_KEY) {
 }
 
 const now = () => new Date().toISOString();
+
+/* URL正規化: http/httpsのみ許可 + トラッキング系クエリ除去 → 同一商品の重複ID/NEW誤爆を防ぐ */
+function canonUrl(raw) {
+  try {
+    const u = new URL(raw);
+    if (u.protocol !== "https:" && u.protocol !== "http:") return null;
+    const keep = [...u.searchParams.entries()]
+      .filter(([k]) => !/^(utm_|ref$|affid|asclid|scid$|s$)/i.test(k))
+      .sort(([a], [b]) => a.localeCompare(b));
+    u.search = new URLSearchParams(keep).toString();
+    return u.toString();
+  } catch {
+    return null;
+  }
+}
 const idOf = (url) => createHash("sha1").update(url).digest("hex").slice(0, 12);
 
 /* ---------- Perplexity Search API ---------- */
@@ -66,15 +81,16 @@ async function primarySearch() {
       console.error(`[warn] query failed: ${q} -> ${e.message}`);
     }
     for (const r of results) {
+      const canon = canonUrl(r.url || "");
+      if (!canon || seen.has(canon)) continue;
       let host = "";
-      try { host = new URL(r.url).hostname.replace(/^www\./, ""); } catch { continue; }
-      if (!r.url || seen.has(r.url)) continue;
+      try { host = new URL(canon).hostname.replace(/^www\./, ""); } catch { continue; }
       if (BLOCK_HOSTS.some((b) => host === b || host.endsWith(`.${b}`))) continue;
-      if (isListingPage(r.url)) continue;
-      seen.add(r.url);
+      if (isListingPage(canon)) continue;
+      seen.add(canon);
       all.push({
-        id: idOf(r.url),
-        url: r.url,
+        id: idOf(canon),
+        url: canon,
         host,
         search_title: r.title || "",
         snippet: (r.snippet || "").slice(0, 1200),
@@ -228,7 +244,11 @@ async function extractSpecs(items) {
     }
     if (!got) continue;
     try {
-      rows.push(...z.array(ItemSpec).parse(got.parsed));
+      const parsedRows = z.array(ItemSpec).parse(got.parsed);
+      for (const row of parsedRows) {
+        if (row.index < start || row.index >= start + CHUNK) continue; // ハルシネーションindex拒否
+        rows.push(row);
+      }
     } catch (e) {
       console.error(`[warn] extract chunk ${start} validation: ${e.message}`);
     }
@@ -268,9 +288,9 @@ async function verifyOne(item) {
 
 /* ---------- 差分 ---------- */
 function diffBadge(prev, item) {
+  if (item.factcheck.http_status === 404) return "sold_out"; // 死リンクをNEW扱いしない
   const p = prev?.find((x) => x.id === item.id);
   if (!p) return "new";
-  if (item.factcheck.http_status === 404) return "sold_out";
   if (p.price_yen && item.price_yen && item.price_yen < p.price_yen) return "price_down";
   return null;
 }
@@ -344,7 +364,7 @@ const top = [...pcs]
   .sort((a, b) => a.price_yen - b.price_yen)
   .slice(0, CFG.verify_top_n);
 console.log(`[ingest] verifying top ${top.length} by price asc`);
-for (const it of top) {
+await mapPool(top, 3, async (it) => {
   try {
     const v = await verifyOne(it);
     it.factcheck.verdict = v.verdict;
@@ -356,25 +376,33 @@ for (const it of top) {
   } catch (e) {
     console.error(`[warn] verify failed ${it.id}: ${e.message}`);
   }
-}
+});
 
 let prev = null;
 try { prev = JSON.parse(await readFile(path.join(ROOT, "data/latest.json"), "utf8")).items; } catch { /* first run */ }
 
 const keep = [...raw.filter((it) => it.factcheck.http_status === 404), ...pcs];
-const items = keep.map((it) => ({
+const items = keep.map((it) => {
+  const p = prev?.find((x) => x.id === it.id);
+  /* 今回照合していない場合、前回の判定(HTTP 200のまま)を引き継ぐ — 信頼シグセルの毎サイクル消失を防ぐ */
+  const factcheck =
+    it.factcheck.verdict || it.factcheck.http_status !== 200 || !p?.factcheck?.verdict
+      ? it.factcheck
+      : { ...p.factcheck };
+  return {
   id: it.id, shop: it.shop, title: it.title, url: it.url,
   price_yen: it.price_yen, gpu: it.gpu, gpu_vram_gb: it.gpu_vram_gb,
   cpu: it.cpu, ram_gb: it.ram_gb, storage: it.storage, rank: it.rank,
   updated_at: it.updated_at || started,
-  factcheck: it.factcheck,
+  factcheck,
   history: {
     first_seen: prev?.find((p) => p.id === it.id)?.history?.first_seen || started,
     last_seen: started,
     prev_price_yen: prev?.find((p) => p.id === it.id)?.price_yen ?? null,
     badge: diffBadge(prev, it),
   },
-}));
+};
+});
 
 const out = {
   generated_at: started,

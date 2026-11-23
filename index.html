@@ -6,7 +6,8 @@
   <title>中古PCサーチ | ローカルLLM向け中古デスクトップPC検索</title>
   <meta name="description" content="ローカルLLM向けの中古デスクトップPC候補を2時間ごとに自動取得し、価格・GPU・メモリ・ランクで比較・ソートできます。">
   <meta name="color-scheme" content="light dark">
-  <meta name="theme-color" content="#1a1a1a">
+  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#1a1a1a" media="(prefers-color-scheme: dark)">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🖥️%3C/text%3E%3C/svg%3E">
   <link rel="stylesheet" href="assets/css/pico.min.css">
   <link rel="stylesheet" href="assets/css/app.css">
@@ -21,12 +22,19 @@
       約2時間ごとに自動取得し、価格・スペック・ランクで比較します。</p>
     <p>
       最終更新:
-      <time id="generated-at" datetime="">読み込み中…</time>
+      <time id="generated-at">読み込み中…</time>
       <span class="badge badge-auto">自動更新</span>
     </p>
   </header>
 
   <main id="main" class="container">
+
+    <noscript>
+      <p role="alert" class="error-text">
+        このページの一覧はJavaScriptで描画されます。JavaScriptを有効にするか、
+        <a href="data/latest.json">生データ(JSON)</a>を直接ご覧ください。
+      </p>
+    </noscript>
 
     <section aria-labelledby="spec-heading" id="spec-box" hidden>
       <h2 id="spec-heading">ターゲットスペック <span class="badge badge-auto" id="spec-reviewed-at"></span></h2>
@@ -46,28 +54,28 @@
         </div>
         <div class="grid">
           <select id="f-gpu" name="f-gpu">
-            <option value="">指定なし</option>
-            <option value="rtx3060-12" selected>RTX 3060 12GB</option>
+            <option value="" selected>指定なし</option>
+            <option value="rtx3060-12">RTX 3060 12GB</option>
             <option value="vram12">VRAM 12GB以上</option>
             <option value="vram16">VRAM 16GB以上</option>
           </select>
           <select id="f-price" name="f-price">
-            <option value="">指定なし</option>
+            <option value="" selected>指定なし</option>
             <option value="90000">9万円</option>
             <option value="100000">10万円</option>
-            <option value="110000" selected>11万円</option>
+            <option value="110000">11万円</option>
             <option value="120000">12万円</option>
             <option value="130000">13万円</option>
           </select>
           <select id="f-ram" name="f-ram">
-            <option value="">指定なし</option>
-            <option value="16" selected>16GB以上</option>
+            <option value="" selected>指定なし</option>
+            <option value="16">16GB以上</option>
             <option value="32">32GB以上</option>
             <option value="64">64GB以上</option>
           </select>
           <select id="f-rank" name="f-rank">
-            <option value="">指定なし</option>
-            <option value="C" selected>C以上</option>
+            <option value="" selected>指定なし</option>
+            <option value="C">C以上</option>
             <option value="B">B以上</option>
             <option value="A">A以上</option>
           </select>
@@ -85,6 +93,7 @@
     <section aria-labelledby="list-heading">
       <h2 id="list-heading">候補一覧</h2>
       <p id="legend" class="legend">
+        すべての列見出しボタンで並べ替えられます。初期状態は全件表示です。
         ステータス凡例:
         <strong>✅ 確認済み</strong>=リンク切れでなくスペック照合済み /
         <strong>⚠️ 一部不一致</strong>=内容に差異あり /
@@ -96,23 +105,27 @@
           <caption class="visually-hidden">中古PC候補一覧。列見出しのボタンで並べ替えられます。</caption>
           <thead>
             <tr>
-              <th scope="col" id="th-status">ステータス</th>
+              <th scope="col" id="th-status" aria-sort="none">
+                <button type="button" class="sort-btn" data-key="status">ステータス <span class="arrow" aria-hidden="true"></span></button>
+              </th>
               <th scope="col" id="th-price" aria-sort="ascending">
                 <button type="button" class="sort-btn" data-key="price_yen">価格 <span class="arrow" aria-hidden="true">▲</span></button>
               </th>
               <th scope="col" id="th-gpu" aria-sort="none">
-                <button type="button" class="sort-btn" data-key="gpu">GPU</button>
+                <button type="button" class="sort-btn" data-key="gpu">GPU <span class="arrow" aria-hidden="true"></span></button>
               </th>
               <th scope="col" id="th-ram" aria-sort="none">
-                <button type="button" class="sort-btn" data-key="ram_gb">メモリ</button>
+                <button type="button" class="sort-btn" data-key="ram_gb">メモリ <span class="arrow" aria-hidden="true"></span></button>
               </th>
               <th scope="col" id="th-rank" aria-sort="none">
-                <button type="button" class="sort-btn" data-key="rank">ランク</button>
+                <button type="button" class="sort-btn" data-key="rank">ランク <span class="arrow" aria-hidden="true"></span></button>
               </th>
               <th scope="col" id="th-updated" aria-sort="none">
-                <button type="button" class="sort-btn" data-key="updated_at">更新</button>
+                <button type="button" class="sort-btn" data-key="updated_at">更新 <span class="arrow" aria-hidden="true"></span></button>
               </th>
-              <th scope="col" id="th-item">商品</th>
+              <th scope="col" id="th-item" aria-sort="none">
+                <button type="button" class="sort-btn" data-key="shop">商品 / 店舗 <span class="arrow" aria-hidden="true"></span></button>
+              </th>
             </tr>
           </thead>
           <tbody id="items-body">
@@ -138,15 +151,16 @@
         </div>
         <div class="grid">
           <select id="rt-gpu" name="rt-gpu">
-            <option value="rtx3060-12" selected>RTX 3060 12GB</option>
+            <option value="" selected>指定なし</option>
+            <option value="rtx3060-12">RTX 3060 12GB</option>
             <option value="vram12">VRAM 12GB以上</option>
             <option value="vram16">VRAM 16GB以上</option>
           </select>
           <select id="rt-price" name="rt-price">
+            <option value="" selected>指定なし</option>
             <option value="90000">9万円</option>
             <option value="100000">10万円</option>
-            <option value="110000" selected>11万円</option>
-            <option value="">指定なし</option>
+            <option value="110000">11万円</option>
           </select>
           <input type="text" id="rt-free" name="rt-free" placeholder="例: CPU第8世代以降 / SSD 1TB">
         </div>
