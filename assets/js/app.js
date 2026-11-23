@@ -317,7 +317,7 @@
     els.rtSubmit.disabled = !ready;
     if (ready) {
       els.rtSubmit.removeAttribute("aria-disabled");
-      $("rt-note").textContent = "条件を指定して検索すると、最新の候補をリアルタイムに取得します(30秒程度かかることがあります)。";
+      $("rt-note").textContent = "条件を指定して検索すると、最新の候補をリアルタイムに取得して下の一覧に表示します(30〜60秒程度かかることがあります)。";
     }
   }
 
