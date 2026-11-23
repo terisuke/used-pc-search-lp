@@ -144,11 +144,15 @@ async function fetchText(url) {
     });
     if (!res.ok) return null;
     const buf = await res.arrayBuffer().then((b) => b.slice(0, 400_000));
-    let text = new TextDecoder("utf-8", { fatal: false }).decode(buf);
-    if ((text.match(/\uFFFD/g) || []).length > 40) {
-      try { text = new TextDecoder("shift_jis", { fatal: false }).decode(buf); } catch { /* keep utf-8 */ }
+    let raw = new TextDecoder("utf-8", { fatal: false }).decode(buf);
+    if ((raw.match(/\uFFFD/g) || []).length > 40) {
+      try { raw = new TextDecoder("shift_jis", { fatal: false }).decode(buf); } catch { /* keep utf-8 */ }
     }
-    return text
+    /* SPA等では価格が <script> 内JSONにしか無いことがある → タグ除去前に価格候補を収集 */
+    const priceCandidates = [...raw.matchAll(/[¥￥]?\s?\d{1,3}(?:,\d{3})+|\b\d{4,6}\s?円/gi)]
+      .map((m) => m[0].trim())
+      .slice(0, 12);
+    const text = raw
       .replace(/<script[\s\S]*?<\/script>/gi, " ")
       .replace(/<style[\s\S]*?<\/style>/gi, " ")
       .replace(/<[^>]+>/g, " ")
@@ -156,6 +160,7 @@ async function fetchText(url) {
       .replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&nbsp;/g, " ")
       .replace(/\s+/g, " ")
       .slice(0, 15_000);
+    return { text, priceCandidates };
   } catch {
     return null;
   }
@@ -257,8 +262,8 @@ async function extractSpecs(items) {
 }
 
 async function verifyOne(item) {
-  const pageText = await fetchText(item.url);
-  if (!pageText) {
+  const page = await fetchText(item.url);
+  if (!page) {
     return { verdict: "partial", issues: ["ページ本文取得失敗(内容照合不可)"], page_price_yen: null, in_stock: null };
   }
   const { parsed } = await gemini(
@@ -268,7 +273,8 @@ async function verifyOne(item) {
         `候補: ${JSON.stringify({
           title: item.title, price_yen: item.price_yen, gpu: item.gpu, gpu_vram_gb: item.gpu_vram_gb,
           cpu: item.cpu, ram_gb: item.ram_gb, storage: item.storage, rank: item.rank,
-        })}\n\nページ本文:\n${pageText.slice(0, 12_000)}\n\n` +
+        })}\n\nページ本文中の価格表記候補(スクリプト内JSON含むから収集): ${page.priceCandidates.join(" / ") || "(なし)"}\n\nページ本文:\n${page.text.slice(0, 12_000)}\n\n` +
+        "page_price_yen は本文または価格候補から判断(税込優先、ない場合はnull)。候補の価格がnullで本文に価格がある場合は必ずpage_price_yenに入れる。" +
         "判定: verified=主要項目(価格/GPU/メモリ)が一致 / partial=一部不一致または確認不能 " +
         "/ mismatch=重大な乖離または売り切れ・別商品。issuesは日本語で簡潔に(最大5件)。",
     }],
@@ -359,11 +365,14 @@ const pcs = live.filter(looksLikePc);
 const dropped = live.length - pcs.length;
 if (dropped) console.log(`[ingest] dropped non-PC entries: ${dropped}`);
 
-const top = [...pcs]
+/* 価格不明の候補を優先的にページ照合へ回し(ページから価格補完)、残り枠で安い順に検証 */
+const nullPrice = pcs.filter((it) => it.price_yen == null).slice(0, Math.ceil(CFG.verify_top_n / 2));
+const priced = [...pcs]
   .filter((it) => it.price_yen != null && it.price_yen <= CFG.target.max_price_yen)
   .sort((a, b) => a.price_yen - b.price_yen)
-  .slice(0, CFG.verify_top_n);
-console.log(`[ingest] verifying top ${top.length} by price asc`);
+  .slice(0, CFG.verify_top_n - nullPrice.length);
+const top = [...nullPrice, ...priced];
+console.log(`[ingest] verifying top ${top.length} (価格補完 ${nullPrice.length} 件を含む)`);
 await mapPool(top, 3, async (it) => {
   try {
     const v = await verifyOne(it);
@@ -371,8 +380,12 @@ await mapPool(top, 3, async (it) => {
     it.factcheck.issues = v.issues || [];
     it.factcheck.checked_at = now();
     if (v.page_price_yen != null) it.factcheck.page_price_yen = v.page_price_yen;
+    if (it.price_yen == null && v.page_price_yen != null) {
+      it.price_yen = v.page_price_yen; // ページから価格補完(SPAの<script>内価格候補含む)
+      it.factcheck.price_filled_from_page = true;
+    }
     if (v.in_stock === false) it.factcheck.verdict = "mismatch";
-    console.log(`[ingest] verify ${it.id} -> ${it.factcheck.verdict}`);
+    console.log(`[ingest] verify ${it.id} -> ${it.factcheck.verdict}${it.factcheck.price_filled_from_page ? " (価格補完)" : ""}`);
   } catch (e) {
     console.error(`[warn] verify failed ${it.id}: ${e.message}`);
   }
