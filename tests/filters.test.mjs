@@ -131,6 +131,9 @@ test("売り切れの機械判定: 一目で分かるSOLD OUT表記をモデル�
   assert.equal(detectSoldOutFromHtml("品切れ・再入荷待ち"), true);
   assert.equal(detectSoldOutFromHtml("在庫なし"), true);
   assert.equal(detectSoldOutFromHtml('window.__DATA__={"status":"sold_out"}'), true);
+  assert.equal(detectSoldOutFromHtml('{"availability":"https://schema.org/OutOfStock"}'), true);
   assert.equal(detectSoldOutFromHtml("在庫あり 今すぐ購入"), false);
   assert.equal(detectSoldOutFromHtml("カートに入れる"), false);
+  /* JSバンドル内の定数文字列(enum配列)への誤反応をしない */
+  assert.equal(detectSoldOutFromHtml('<script>var e=["sold_out","on_sale"];var tpl="在庫切れ";</script>'), false);
 });

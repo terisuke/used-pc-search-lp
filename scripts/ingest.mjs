@@ -7,7 +7,7 @@ import { createHash } from "node:crypto";
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import path from "node:path";
 import { z } from "zod";
-import { isListingPage, canonUrl, extractPriceCandidates, diffBadge, hasProductUrlSignal, detectProductMarkers, SOLD_OUT_RE } from "./lib/filters.mjs";
+import { isListingPage, canonUrl, extractPriceCandidates, diffBadge, hasProductUrlSignal, detectProductMarkers, detectSoldOutFromHtml } from "./lib/filters.mjs";
 
 const ROOT = new URL("..", import.meta.url).pathname;
 const CFG = JSON.parse(await readFile(path.join(ROOT, "config/conditions.json"), "utf8"));
@@ -119,7 +119,7 @@ async function fetchText(url) {
     }
     /* SPA等では価格が <script> 内JSONにしか無いことがある → タグ除去前に価格候補を収集 */
     const priceCandidates = extractPriceCandidates(raw);
-    const soldOut = SOLD_OUT_RE.test(raw);
+    const soldOut = detectSoldOutFromHtml(raw);
     const text = raw
       .replace(/<script[\s\S]*?<\/script>/gi, " ")
       .replace(/<style[\s\S]*?<\/style>/gi, " ")
