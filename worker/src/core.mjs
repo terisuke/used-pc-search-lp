@@ -56,7 +56,21 @@ export function hasProductUrlSignal(url) {
   }
 }
 
-export const SOLD_OUT_RE = /SOLD\s*OUT|完売|品切れ|在庫なし|在庫切れ|売り切れ|販売終了|取り扱い(を)?終了|再入荷(待ち|予定)|"sold_?out"\s*[:=]|"status"\s*:\s*"sold/i;
+export const SOLD_OUT_RE = /SOLD\s*OUT|完売|品切れ|在庫なし|在庫切れ|売り切れ|販売終了|取り扱い(を)?終了|再入荷(待ち|予定)/i;
+
+/* 売り切れの機械判定: 可視テキスト / availability=OutOfStock / "status":"sold_out" のみ
+   (JSバンドル内の定数文字列への誤反応を避ける) */
+export function detectSoldOutFromHtml(rawHtml) {
+  const raw = String(rawHtml || "").slice(0, 400_000);
+  const visibleText = raw
+    .replace(/<script[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style[\s\S]*?<\/style>/gi, " ")
+    .replace(/<[^>]+>/g, " ");
+  if (SOLD_OUT_RE.test(visibleText)) return true;
+  if (/"availability"\s*:\s*"[^"]*OutOfStock/i.test(raw)) return true;
+  if (/"status"\s*:\s*"sold_out"/i.test(raw)) return true;
+  return false;
+}
 
 export function detectProductMarkers(rawHtml) {
   const s = String(rawHtml || "").slice(0, 400_000);
@@ -115,7 +129,7 @@ async function fetchPageText(url) {
     if ((raw.match(/\uFFFD/g) || []).length > 40) {
       try { raw = new TextDecoder("shift_jis", { fatal: false }).decode(buf); } catch { /* keep */ }
     }
-    const soldOut = SOLD_OUT_RE.test(raw);
+    const soldOut = detectSoldOutFromHtml(raw);
     /* SPA等の価格は<script>内JSONにあることがあるため、タグ除去前に価格候補を収集 */
     const priceCandidates = [
       ...new Set([
@@ -240,25 +254,27 @@ export async function handleSearch(env, body) {
       });
     }
     const top0 = candidates.slice(0, 10);
-    /* 商品ページ確認: URLシグナルが無い候補は本文スニフでJSON-LD/og Productを要求 */
-    const sniffs = await Promise.all(top0.map(async (it) => {
-      if (hasProductUrlSignal(it.url)) return true;
+    /* 商品ページ確認+売り切れ機械判定を1フェッチで同時に実施(売り切れは最初から返さない) */
+    const checks = await Promise.all(top0.map(async (it) => {
+      const signal = hasProductUrlSignal(it.url);
       try {
         const res = await fetch(it.url, {
           headers: { "User-Agent": UA, "Accept-Language": "ja" },
           redirect: "follow",
           signal: AbortSignal.timeout(10_000),
         });
-        if (!res.ok) return false;
+        if (!res.ok) return { keep: signal && res.status !== 404, soldOut: false };
         const buf = await res.arrayBuffer().then((b) => b.slice(0, 250_000));
         const raw = new TextDecoder("utf-8", { fatal: false }).decode(buf);
-        return detectProductMarkers(raw).isProduct;
+        const soldOut = detectSoldOutFromHtml(raw);
+        const isProduct = detectProductMarkers(raw).isProduct;
+        return { keep: !soldOut && (signal || isProduct), soldOut };
       } catch {
-        return false;
+        return { keep: signal, soldOut: false }; // 取得失敗時はURLシグナルのみで判断
       }
     }));
-    /* 404(在庫切れ)はリアルタイム結果に出さない */
-    const top = top0.filter((_, i) => sniffs[i]).slice(0, 10);
+    const top = top0.filter((_, i) => checks[i].keep).slice(0, 10);
+    const soldOutAtSearch = checks.filter((c) => c.soldOut).length;
     const statuses = await Promise.all(top.map((it) => httpStatus(it.url)));
     top.forEach((it, i) => { it.factcheck.http_status = statuses[i]; });
     const live = top.filter((it) => it.factcheck.http_status !== 404);
@@ -276,7 +292,8 @@ export async function handleSearch(env, body) {
         source: "realtime",
         query,
         items: live,
-        note: "在庫切れ(404)は除外表示。価格・スペックは行ごとの照合(/verify)または次回の定期取得で補完されます",
+        soldOutExcluded: soldOutAtSearch,
+        note: "売り切れ(SOLD OUT/完売等)・404は除外して返します。価格・スペックは行ごとの照合(/verify)または次回の定期取得で補完されます",
       },
     };
   } catch (e) {

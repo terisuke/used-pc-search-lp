@@ -370,8 +370,12 @@
       els.generatedAt.textContent = `リアルタイム(${fmtDate(data.generated_at)})`;
       const shown = render();
       scrollToResults();
-      progress.textContent = `リアルタイム検索完了: ${state.items.length} 件取得 → ${shown} 件を下の一覧に表示中（フィルタは指定なしにリセット済み）。上位行から順にスペック照合します…`;
-      lazyVerifyTop(5, progress);
+      if (state.items.length === 0) {
+        progress.textContent = `リアルタイム検索: 条件に合う「販売中」の商品が見つかりませんでした（売り切れは除外済み）。条件を緩めるか、時間をおいて再試行してください。`;
+      } else {
+        progress.textContent = `リアルタイム検索完了: ${state.items.length} 件取得 → ${shown} 件を下の一覧に表示中（フィルタは指定なしにリセット済み）。上位行から順にスペック照合します…`;
+        lazyVerifyTop(5, progress);
+      }
     } catch (err) {
       errorBox.hidden = false;
       errorBox.textContent = `リアルタイム検索に失敗しました: ${err.message}。少し待って再試行してください。`;

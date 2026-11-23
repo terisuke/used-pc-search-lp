@@ -88,10 +88,23 @@ export function hasProductUrlSignal(url) {
   }
 }
 
-/* 売り切れの機械判定(SOLD OUT等)。モデル判定の漏れを補完し、単一商品ページでは十分信頼できる */
-export const SOLD_OUT_RE = /SOLD\s*OUT|完売|品切れ|在庫なし|在庫切れ|売り切れ|販売終了|取り扱い(を)?終了|再入荷(待ち|予定)|"sold_?out"\s*[:=]|"status"\s*:\s*"sold/i;
+/* 売り切れの機械判定。JSバンドル内の定数文字列への誤反応を避けるため、
+   1) 可視テキスト(script/style/タグ除去後)の売り切れ表記
+   2) schema.org availability=OutOfStock
+   3) 明示的な "status":"sold_out" キー値
+   のみを対象にする(単一商品ページでは十分信頼できる)。 */
+const SOLD_OUT_TEXT_RE = /SOLD\s*OUT|完売|品切れ|在庫なし|在庫切れ|売り切れ|販売終了|取り扱い(を)?終了|再入荷(待ち|予定)/i;
+export const SOLD_OUT_RE = SOLD_OUT_TEXT_RE; // 可視テキスト用(regex単体テスト・parity用)
 export function detectSoldOutFromHtml(rawHtml) {
-  return SOLD_OUT_RE.test(String(rawHtml || "").slice(0, 400_000));
+  const raw = String(rawHtml || "").slice(0, 400_000);
+  const visibleText = raw
+    .replace(/<script[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style[\s\S]*?<\/style>/gi, " ")
+    .replace(/<[^>]+>/g, " ");
+  if (SOLD_OUT_TEXT_RE.test(visibleText)) return true;
+  if (/"availability"\s*:\s*"[^"]*OutOfStock/i.test(raw)) return true;
+  if (/"status"\s*:\s*"sold_out"/i.test(raw)) return true;
+  return false;
 }
 
 /* 本文からの商品マーカー判定(JSON-LD Product / og:type=product)。
