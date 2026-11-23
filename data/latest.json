@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-23T10:07:35.547Z",
+  "generated_at": "2026-11-23T10:11:25.114Z",
   "source": "perplexity-search+gemini",
   "queries": [
     "中古 デスクトップPC RTX 3060 12GB 搭載 価格",
@@ -10,8 +10,8 @@
   "counts": {
     "found": 13,
     "live": 13,
-    "kept": 11,
-    "sold_out_excluded": 0,
+    "kept": 9,
+    "sold_out_excluded": 2,
     "verified": 0
   },
   "items": [
@@ -31,16 +31,16 @@
       "factcheck": {
         "http_status": 200,
         "verdict": "partial",
-        "checked_at": "2026-11-23T10:08:31.412Z",
+        "checked_at": "2026-11-23T10:12:20.095Z",
         "issues": [
-          "本文が途中で途切れており商品価格(89,000円)を確認できない",
-          "在庫状況を確認できない",
-          "CPU(i7-9700K)・メモリ(32GB)・ストレージ構成を確認できない"
+          "ページ本文が途中で切れており、商品詳細や在庫状況を確認できない",
+          "候補価格(89,000円)をページ本文から確認できない",
+          "CPU・メモリ・ストレージの詳細スペックを本文から確認できない"
         ]
       },
       "history": {
         "first_seen": "2026-11-23T08:01:39.284Z",
-        "last_seen": "2026-11-23T10:07:35.547Z",
+        "last_seen": "2026-11-23T10:11:25.114Z",
         "prev_price_yen": 89000,
         "badge": null
       }
@@ -61,47 +61,17 @@
       "factcheck": {
         "http_status": 200,
         "verdict": "partial",
-        "checked_at": "2026-11-23T10:08:24.807Z",
+        "checked_at": "2026-11-23T10:12:15.206Z",
         "issues": [
-          "候補の価格が未取得(null)のため確認不能"
+          "候補データの価格がnullのため価格の一致を確認できません（ページ上の価格は148,800円）"
         ],
         "page_price_yen": 148800,
         "price_filled_from_page": true
       },
       "history": {
         "first_seen": "2026-11-23T10:07:35.547Z",
-        "last_seen": "2026-11-23T10:07:35.547Z",
-        "prev_price_yen": null,
-        "badge": "new"
-      }
-    },
-    {
-      "id": "a0cd0dfb9ab6",
-      "shop": "パソコン工房",
-      "title": "mouse 〔中古〕BTO DeskPC Ryzen 7 7700/DDR5 32GB/1TB M.2 SSD/GeForce RTX 4070 SUPER 12GB/Windows11 Pro(MAR)(中古保証3ヶ月間)",
-      "url": "https://www.pc-koubou.jp/products/detail.php?product_id=1229760",
-      "price_yen": 189981,
-      "gpu": "GeForce RTX 4070 SUPER",
-      "gpu_vram_gb": 12,
-      "cpu": "Ryzen 7 7700",
-      "ram_gb": 32,
-      "storage": "1TB M.2 SSD",
-      "rank": null,
-      "updated_at": "2026-11-23",
-      "factcheck": {
-        "http_status": 200,
-        "verdict": "mismatch",
-        "checked_at": "2026-11-23T08:02:28.546Z",
-        "issues": [
-          "在庫切れです"
-        ],
-        "page_price_yen": 189981,
-        "price_filled_from_page": true
-      },
-      "history": {
-        "first_seen": "2026-11-23T07:53:25.274Z",
-        "last_seen": "2026-11-23T10:07:35.547Z",
-        "prev_price_yen": 189981,
+        "last_seen": "2026-11-23T10:11:25.114Z",
+        "prev_price_yen": 148800,
         "badge": null
       }
     },
@@ -121,16 +91,16 @@
       "factcheck": {
         "http_status": 200,
         "verdict": "partial",
-        "checked_at": "2026-11-23T10:08:24.066Z",
+        "checked_at": "2026-11-23T10:12:14.183Z",
         "issues": [
-          "候補の価格・主要スペックが未取得(null)のため一致確認不能",
-          "単一商品ページではなく複数商品の一覧ページ",
-          "ページ内の価格表記は米ドル($)のみで円価格なし"
+          "複数商品を掲載した一覧・カテゴリページであり単一商品ページではない",
+          "候補データの価格・スペック項目がすべて未取得(null)のため照合不可",
+          "ページ内の価格表記はすべて米ドル($)であり円価格(page_price_yen)は確認不能"
         ]
       },
       "history": {
         "first_seen": "2026-11-23T05:09:49.872Z",
-        "last_seen": "2026-11-23T10:07:35.547Z",
+        "last_seen": "2026-11-23T10:11:25.114Z",
         "prev_price_yen": null,
         "badge": null
       }
@@ -151,58 +121,27 @@
       "factcheck": {
         "http_status": 200,
         "verdict": "partial",
-        "checked_at": "2026-11-23T10:08:24.109Z",
+        "checked_at": "2026-11-23T10:12:14.206Z",
         "issues": [
-          "複数商品の一覧ページ(126件)であり単一商品の仕様・価格を特定できない",
-          "ページ内の価格表記は米ドル($)のみであり日本円の価格情報がない",
-          "候補データの主要項目(価格・GPU・CPU・メモリ等)が未取得(null)"
+          "単一の商品ページではなく複数商品が掲載されたカテゴリ一覧ページである",
+          "候補の価格・GPU・メモリ等の主要項目が未取得(null)のため確認不能",
+          "ページ内の価格は米ドル($)表記であり日本円価格が確認できない"
         ]
       },
       "history": {
         "first_seen": "2026-11-23T05:09:49.872Z",
-        "last_seen": "2026-11-23T10:07:35.547Z",
+        "last_seen": "2026-11-23T10:11:25.114Z",
         "prev_price_yen": null,
-        "badge": null
-      }
-    },
-    {
-      "id": "0fd348ebac39",
-      "shop": "パソコン工房",
-      "title": "ノーブランド 〔中古〕BTO DeskPC インテル® Core™ Ultra 7 プロセッサー 265/64GB/1TB M.2 SSD/GeForce RTX 5070 12GB/Windows11 Pro(MAR)（中古保証3ヶ月間）",
-      "url": "https://www.pc-koubou.jp/products/detail.php?product_id=1205250",
-      "price_yen": 239980,
-      "gpu": "GeForce RTX 5070",
-      "gpu_vram_gb": 12,
-      "cpu": "Core Ultra 7 265",
-      "ram_gb": 64,
-      "storage": "1TB M.2 SSD",
-      "rank": null,
-      "updated_at": "2026-11-21",
-      "factcheck": {
-        "http_status": 200,
-        "verdict": "mismatch",
-        "checked_at": "2026-11-23T06:03:01.514Z",
-        "issues": [
-          "商品が在庫切れ",
-          "候補の価格が未設定（ページ価格は239,980円）"
-        ],
-        "page_price_yen": 239980,
-        "price_filled_from_page": true
-      },
-      "history": {
-        "first_seen": "2026-11-23T04:49:12.604Z",
-        "last_seen": "2026-11-23T10:07:35.547Z",
-        "prev_price_yen": 239980,
         "badge": null
       }
     },
     {
       "id": "fa208703bb44",
       "shop": "パソコン工房",
-      "title": "ノーブランド 〔中古〕BTO DeskPC Ryzen 7 7700/DDR5 64GB/1TB M.2 SSD + 2TB M.2 SSD/GeForce RTX 4070 SUPER 12GB/Windows11 Pro(MAR)（中古",
+      "title": "〔中古〕BTO DeskPC Ryzen 7 7700/DDR5 64GB/1TB M.2 SSD + 2TB M.2 SSD/GeForce RTX 4070 SUPER 12GB/Windows11 Pro(MAR)（中古保証3ヶ月間）",
       "url": "https://www.pc-koubou.jp/products/detail.php?product_id=1254782",
       "price_yen": 279980,
-      "gpu": "GeForce RTX 4070 SUPER",
+      "gpu": "GeForce RTX 4070 SUPER 12GB",
       "gpu_vram_gb": 12,
       "cpu": "Ryzen 7 7700",
       "ram_gb": 64,
@@ -210,14 +149,14 @@
       "rank": null,
       "updated_at": "2026-10-28",
       "factcheck": {
-        "http_status": 429,
+        "http_status": 200,
         "verdict": null,
         "checked_at": null,
         "issues": []
       },
       "history": {
         "first_seen": "2026-11-23T06:02:06.964Z",
-        "last_seen": "2026-11-23T10:07:35.547Z",
+        "last_seen": "2026-11-23T10:11:25.114Z",
         "prev_price_yen": 279980,
         "badge": null
       }
@@ -225,7 +164,7 @@
     {
       "id": "8a1d77e4ad60",
       "shop": "パソコン工房",
-      "title": "FRONTIER 〔中古〕FRGHB760/WS921 インテル® Core™ i7-13700F プロセッサー/DDR4 64GB/1TB SSD + 2TB SSD/GeForce RTX 4070 Ti/Windows 11 Home",
+      "title": "〔中古〕FRGHB760/WS921 インテル® Core™ i7-13700F プロセッサー/DDR4 64GB/1TB SSD + 2TB SSD/GeForce RTX 4070 Ti/Windows 11 Home（中古保証3ヶ月間",
       "url": "https://www.pc-koubou.jp/products/detail.php?product_id=1261732",
       "price_yen": 281980,
       "gpu": "GeForce RTX 4070 Ti",
@@ -236,14 +175,14 @@
       "rank": null,
       "updated_at": "2026-11-04",
       "factcheck": {
-        "http_status": 200,
+        "http_status": 429,
         "verdict": null,
         "checked_at": null,
         "issues": []
       },
       "history": {
         "first_seen": "2026-11-23T06:02:06.964Z",
-        "last_seen": "2026-11-23T10:07:35.547Z",
+        "last_seen": "2026-11-23T10:11:25.114Z",
         "prev_price_yen": 281980,
         "badge": null
       }
@@ -251,10 +190,10 @@
     {
       "id": "7f6eec6e3c30",
       "shop": "パソコン工房",
-      "title": "ノーブランド 〔中古〕BTO DeskPC AMD Ryzen9-7900X (12C24T)/64GB/2TB (SSD)/GeForce RTX4070 SUPER 12GB/Windows 11 Home 64bit（中古保証3ヶ月間",
+      "title": "〔中古〕BTO DeskPC AMD Ryzen9-7900X (12C24T)/64GB/2TB (SSD)/GeForce RTX4070 SUPER 12GB/Windows 11 Home 64bit（中古保証3ヶ月間）",
       "url": "https://www.pc-koubou.jp/products/detail.php?product_id=1159020",
       "price_yen": 229980,
-      "gpu": "GeForce RTX4070 SUPER",
+      "gpu": "GeForce RTX4070 SUPER 12GB",
       "gpu_vram_gb": 12,
       "cpu": "AMD Ryzen9-7900X",
       "ram_gb": 64,
@@ -269,7 +208,7 @@
       },
       "history": {
         "first_seen": "2026-11-23T06:02:06.964Z",
-        "last_seen": "2026-11-23T10:07:35.547Z",
+        "last_seen": "2026-11-23T10:11:25.114Z",
         "prev_price_yen": 229980,
         "badge": null
       }
@@ -277,10 +216,10 @@
     {
       "id": "b4d8f4f7d12c",
       "shop": "パソコン工房",
-      "title": "ノーブランド 〔中古〕BTO DeskPC Ryzen 7 5800X/DDR4 64GB/1TB M.2 SSD/GeForce RTX 3080 10GB/Windows11 Pro(MAR)（中古保証3ヶ月間）",
+      "title": "〔中古〕BTO DeskPC Ryzen 7 5800X/DDR4 64GB/1TB M.2 SSD/GeForce RTX 3080 10GB/Windows11 Pro(MAR)（中古保証3ヶ月間）",
       "url": "https://www.pc-koubou.jp/products/detail.php?product_id=1222245",
       "price_yen": 169980,
-      "gpu": "GeForce RTX 3080",
+      "gpu": "GeForce RTX 3080 10GB",
       "gpu_vram_gb": 10,
       "cpu": "Ryzen 7 5800X",
       "ram_gb": 64,
@@ -295,7 +234,7 @@
       },
       "history": {
         "first_seen": "2026-11-23T06:02:06.964Z",
-        "last_seen": "2026-11-23T10:07:35.547Z",
+        "last_seen": "2026-11-23T10:11:25.114Z",
         "prev_price_yen": 169980,
         "badge": null
       }
@@ -321,7 +260,7 @@
       },
       "history": {
         "first_seen": "2026-11-23T10:01:11.753Z",
-        "last_seen": "2026-11-23T10:07:35.547Z",
+        "last_seen": "2026-11-23T10:11:25.114Z",
         "prev_price_yen": 229980,
         "badge": null
       }
