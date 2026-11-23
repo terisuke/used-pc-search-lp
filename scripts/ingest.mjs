@@ -287,12 +287,27 @@ async function sniffProduct(url) {
 }
 
 async function confirmProductPages(candidates) {
-  const needSniff = candidates.filter((it) => !hasProductUrlSignal(it.url));
-  const results = await mapPool(needSniff, 4, (it) => sniffProduct(it.url));
+  const needSniff = candidates; // URL形状だけでなく全候補の本文マーカーを要求
+  const results = await mapPool(needSniff, 4, async (it) => {
+    const signal = hasProductUrlSignal(it.url);
+    try {
+      const res = await fetch(it.url, {
+        headers: { "User-Agent": UA, "Accept-Language": "ja" },
+        redirect: "follow",
+        signal: AbortSignal.timeout(12_000),
+      });
+      if (!res.ok) return false;
+      const buf = await res.arrayBuffer().then((b) => b.slice(0, 300_000));
+      const raw = new TextDecoder("utf-8", { fatal: false }).decode(buf);
+      return detectProductMarkers(raw).isProduct;
+    } catch {
+      return signal; // 取得失敗時のみURL形状でフォールバック
+    }
+  });
   const sniffOk = new Set(needSniff.filter((it, i) => results[i]).map((it) => it.url));
   const dropped = needSniff.length - sniffOk.size;
-  console.log(`[ingest] product-page confirm: url-signal=${candidates.length - needSniff.length}, sniff-ok=${sniffOk.size}, dropped-no-marker=${dropped}`);
-  return candidates.filter((it) => hasProductUrlSignal(it.url) || sniffOk.has(it.url));
+  console.log(`[ingest] product-page confirm: markers-ok=${sniffOk.size}, dropped=${dropped}`);
+  return candidates.filter((it) => sniffOk.has(it.url));
 }
 
 /* ---------- main ---------- */

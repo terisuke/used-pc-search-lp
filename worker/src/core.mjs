@@ -12,6 +12,7 @@ const BLOCK_HOSTS = [
   "youtube.com", "x.com", "twitter.com", "facebook.com", "instagram.com",
   "wikipedia.org", "note.com", "hatenablog.com", "qiita.com", "zenn.dev",
   ...MEDIA_HOSTS,
+  "mercari.com", "jp.mercari.com",
 ];
 const isBlockedHost = (hostname) => {
   const h = String(hostname || "").replace(/^www\./, "");
@@ -77,6 +78,19 @@ export function detectSoldOutFromHtml(rawHtml) {
   if (/"availability"\s*:\s*"[^"]*OutOfStock/i.test(raw)) return true;
   if (/"status"\s*:\s*"sold_out"/i.test(raw)) return true;
   return false;
+}
+
+export function hasStrongProductUrlSignal(url) {
+  try {
+    const u = new URL(url);
+    const p = u.pathname;
+    if (u.hostname === "item.rakuten.co.jp") return !/(^|\/)c(\/|$)/.test(p);
+    if (/\/jp\/auction\/[A-Za-z0-9]+/.test(p)) return true;
+    if (/\/item\/[A-Za-z0-9_-]{4,}/.test(p)) return true;
+    return false;
+  } catch {
+    return false;
+  }
 }
 
 export function detectProductMarkers(rawHtml) {
@@ -236,6 +250,13 @@ export function buildMarketQuery(body) {
   return parts.join(" ");
 }
 
+export function buildAuctionQuery(body) {
+  const parts = ["ヤフオク 中古 デスクトップPC 出品"];
+  if (body.gpu === "rtx3060-12") parts.push("RTX 3060 12GB");
+  if (body.ram) parts.push(`メモリ${body.ram}GB`);
+  return parts.join(" ");
+}
+
 export function buildStockQuery(body) {
   const parts = ["中古 デスクトップPC"];
   if (body.gpu === "rtx3060-12") parts.push("RTX 3060 12GB");
@@ -246,7 +267,12 @@ export function buildStockQuery(body) {
 export async function handleSearch(env, body) {
   try {
     const queries = [
-      ...new Set([buildQuery(body || {}), buildMarketQuery(body || {}), buildStockQuery(body || {})]),
+      ...new Set([
+        buildQuery(body || {}),
+        buildMarketQuery(body || {}),
+        buildStockQuery(body || {}),
+        buildAuctionQuery(body || {}),
+      ]),
     ];
     const resultSets = await Promise.all(queries.map((q) => perplexitySearch(env, q).catch(() => [])));
     const results = resultSets.flat();
@@ -277,32 +303,42 @@ export async function handleSearch(env, body) {
       while (wi < top0.length) {
         const idx = wi++;
         const it = top0[idx];
-        const signal = hasProductUrlSignal(it.url);
+        const signal = hasStrongProductUrlSignal(it.url);
         try {
-          const res = await fetch(it.url, {
+          let res = await fetch(it.url, {
             headers: { "User-Agent": UA, "Accept-Language": "ja" },
             redirect: "follow",
             signal: AbortSignal.timeout(10_000),
           });
+          if (res.status === 429) {
+            /* 自前の並列アクセスに起因するレート制限は一度だけバックオフ再試行 */
+            await new Promise((r) => setTimeout(r, 800));
+            res = await fetch(it.url, {
+              headers: { "User-Agent": UA, "Accept-Language": "ja" },
+              redirect: "follow",
+              signal: AbortSignal.timeout(10_000),
+            });
+          }
           const status = res.status;
           if (!res.ok) {
-            checks[idx] = { keep: signal && status !== 404, soldOut: false, reason: `http-${status}`, status };
+            checks[idx] = { keep: false, soldOut: false, reason: `http-${status}`, status };
             continue;
           }
           const buf = await res.arrayBuffer().then((b) => b.slice(0, 250_000));
           const raw = new TextDecoder("utf-8", { fatal: false }).decode(buf);
           const soldOut = detectSoldOutFromHtml(raw);
           const isProduct = detectProductMarkers(raw).isProduct;
+          const strong = hasStrongProductUrlSignal(it.url);
+          /* 一覧ページ誤入防止: 弱いURL形状のみなら本文マーカー必須。強シグナルは形状で許可 */
           checks[idx] = {
-            keep: !soldOut && (signal || isProduct),
+            keep: !soldOut && (isProduct || strong),
             soldOut,
-            reason: soldOut ? "soldout" : isProduct || signal ? "ok" : "not-product",
+            reason: soldOut ? "soldout" : isProduct || strong ? "ok" : "not-product",
             status,
           };
         } catch {
           checks[idx] = { keep: signal, soldOut: false, reason: "fetch-fail", status: null };
-        }
-      }
+        }      }
     });
     await Promise.all(workers);
     const keptAll = top0

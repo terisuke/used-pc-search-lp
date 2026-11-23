@@ -10,6 +10,8 @@ const BLOCK_HOSTS = [
   "youtube.com", "x.com", "twitter.com", "facebook.com", "instagram.com",
   "wikipedia.org", "note.com", "hatenablog.com", "qiita.com", "zenn.dev",
   ...MEDIA_HOSTS,
+  /* SPAで在庫/価格がクライアント描画のみ → サーバ側で売り切れ検証不能のため自動結果から除外 */
+  "mercari.com", "jp.mercari.com",
 ];
 
 export const isBlockedHost = (hostname) => {
@@ -129,6 +131,21 @@ export function detectProductMarkers(rawHtml) {
     reasons.includes("og-product") ||
     (reasons.includes("jsonld-product") && !reasons.includes("jsonld-itemlist"));
   return { isProduct, reasons };
+}
+
+/* 「強」商品URLシグナル: 形状だけで商品個別ページと断定できるもの(本文マーカー不要)。
+   それ以外(/products/等)は本文マーカー必須 — 一覧ページ誤入を防ぐ */
+export function hasStrongProductUrlSignal(url) {
+  try {
+    const u = new URL(url);
+    const p = u.pathname;
+    if (u.hostname === "item.rakuten.co.jp") return !/(^|\/)c(\/|$)/.test(p);
+    if (/\/jp\/auction\/[A-Za-z0-9]+/.test(p)) return true; // Yahooオークション
+    if (/\/item\/[A-Za-z0-9_-]{4,}/.test(p)) return true;   // paypayフリマ等
+    return false;
+  } catch {
+    return false;
+  }
 }
 
 /* 差分badge: 死リンクをNEW扱いしない(404判定を優先) */
