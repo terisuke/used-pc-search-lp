@@ -26,6 +26,23 @@
 | スペック抽出/照合 | `gemini-4-hydrogen` (Gemini 4 Flash級) | `GEMINI_MODEL` で上書き可 |
 | 週次スペック見直し | `gemini-4-hydrogen` + Perplexity Search | 提案はIssue起票し人間レビュー |
 
+## リアルタイム検索 (Cloudflare Worker)
+
+`worker/` に実装済み(Waiting: Cloudflare認証のみ)。
+
+```sh
+cd worker
+bunx wrangler login                      # 人力ゲート(初回のみ)
+bunx wrangler deploy
+bwenv get PERPLEXITY_API_KEY | wrangler secret put PERPLEXITY_API_KEY
+bwenv get NFC_GEMINI_API_KEY  | wrangler secret put GEMINI_API_KEY
+# data/worker-config.json の worker_url に https://used-pc-search-worker.<account>.workers.dev を設定して commit
+```
+
+- `POST /search`: Perplexity一次検索→機械HTTP判定→Gemini抽出(CORS=Pages origin限定, 10req/min/IP)
+- `POST /verify`: 個別URLの機械判定+実ページ照合(価格候補は `<script>` 内JSONからも収集)
+- ローカルE2E: `PERPLEXITY_API_KEY=… GEMINI_API_KEY=… node worker/test/local-e2e.mjs`
+
 ## 週次スペック見直し (`.github/workflows/spec-review.yml`)
 
 毎週月曜 01:00 JST に最新のローカルLLM運用要件(VRAM/RAM/エンジン進化: llama.cpp MoEオフロード,
