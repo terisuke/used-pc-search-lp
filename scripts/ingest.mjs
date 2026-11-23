@@ -260,7 +260,6 @@ async function verifyOne(item) {
 }
 
 /* ---------- 差分(diffBadge は lib/filters.mjs を使用) ---------- */
-
 /* ---------- 商品ページ確認(ポジティブ判定) ---------- */
 /* deny-listは未知ショップに漏れるため、URL形状シグナルが無い候補は
    本文を取得して JSON-LD Product / og:type=product を要求する(無ければ落とす) */
@@ -384,7 +383,9 @@ await mapPool(top, 3, async (it) => {
 let prev = null;
 try { prev = JSON.parse(await readFile(path.join(ROOT, "data/latest.json"), "utf8")).items; } catch { /* first run */ }
 
-const keep = [...raw.filter((it) => it.factcheck.http_status === 404), ...pcs];
+/* 在庫切れ(404)は一覧に出さない(履歴データ側には残る) */
+const soldOutExcluded = raw.filter((it) => it.factcheck.http_status === 404).length;
+const keep = [...pcs];
 const items = keep.map((it) => {
   const p = prev?.find((x) => x.id === it.id);
   /* 今回照合していない場合、前回の判定(HTTP 200のまま)を引き継ぐ — 信頼シグセルの毎サイクル消失を防ぐ */
@@ -411,7 +412,7 @@ const out = {
   generated_at: started,
   source: "perplexity-search+gemini",
   queries: CFG.queries,
-  counts: { found: raw.length, live: live.length, kept: items.length, verified: items.filter((i) => i.factcheck.verdict === "verified").length },
+  counts: { found: raw.length, live: live.length, kept: items.length, sold_out_excluded: soldOutExcluded, verified: items.filter((i) => i.factcheck.verdict === "verified").length },
   items,
 };
 

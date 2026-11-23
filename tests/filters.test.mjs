@@ -71,7 +71,7 @@ test("extractPriceCandidates: script内JSON・本文から価格候補を収集"
 });
 
 test("buildQuery: GPU/RAM/価格/自由条件がクエリに反映される", async () => {
-  const { buildQuery } = await import("../worker/src/core.mjs");
+  const { buildQuery, buildMarketQuery } = await import("../worker/src/core.mjs");
   const q = buildQuery({ gpu: "rtx3060-12", ram: 32, price: 110000, free: "SSD 1TB" });
   assert.ok(q.includes("RTX 3060 12GB"));
   assert.ok(q.includes("メモリ32GB以上"));
@@ -79,6 +79,10 @@ test("buildQuery: GPU/RAM/価格/自由条件がクエリに反映される", as
   assert.ok(q.includes("SSD 1TB"));
   const bare = buildQuery({});
   assert.ok(!bare.includes("メモリ"));
+  /* 市場系クエリ: 定期取得と同じソース(メルカリ/ヤフオク/フリマ)を拾う */
+  const market = buildMarketQuery({ ram: 16 });
+  assert.ok(market.includes("メルカリ") && market.includes("ヤフオク") && market.includes("フリマ"));
+  assert.ok(market.includes("メモリ16GB"));
 });
 
 test("diffBadge: 死リンクはNEWにならずsold_out優先", () => {
