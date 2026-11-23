@@ -456,6 +456,7 @@
       $("spec-reviewed-at").textContent = `最終見直し ${reviewed}`;
       $("spec-profiles").innerHTML = spec.profiles.map((p) => `
         <div class="spec-card">
+          <button type="button" class="spec-apply-overlay" data-profile="${esc(p.id)}" aria-label="「${esc(p.label)}」の条件で一覧を絞り込む"></button>
           <h3>${esc(p.label)}</h3>
           <dl>
             <dt>VRAM</dt><dd>最小${esc(p.min_vram_gb)}GB / 推奨${esc(p.preferred_vram_gb)}GB</dd>
@@ -463,7 +464,7 @@
             <dt>CPU</dt><dd>${esc(p.min_cpu_cores)}コア以上</dd>
             <dt>想定</dt><dd>${esc(p.target_models)}</dd>
           </dl>
-          <button type="button" class="spec-apply min-target" data-profile="${esc(p.id)}">この条件で絞る</button>
+          <p class="spec-hint">カードをクリックで一覧を絞り込み</p>
         </div>`).join("");
       box.hidden = false;
     } catch {
@@ -472,7 +473,7 @@
   }
 
   $("spec-profiles").addEventListener("click", (e) => {
-    const btn = e.target.closest(".spec-apply");
+    const btn = e.target.closest(".spec-apply-overlay");
     if (!btn) return;
     const conf = PROFILE_FILTERS[btn.dataset.profile];
     if (!conf) return;
@@ -487,6 +488,13 @@
   });
 
   /* --- 初期化 --- */
+  /* ビルド識別子: asset URL の ?v=<sha> を表示(古いキャッシュを見ているか判別できる) */
+  const selfScript = [...document.querySelectorAll("script")].find((s) => s.src.includes("assets/js/app.js"));
+  if (selfScript) {
+    const v = new URL(selfScript.src).searchParams.get("v");
+    if (v) $("build").textContent = ` | build: ${v}`;
+  }
+
   async function init() {
     try {
       const res = await fetch("data/latest.json", { cache: "no-store" });
