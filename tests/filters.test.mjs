@@ -11,9 +11,18 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   isListingPage, canonUrl, extractPriceCandidates, diffBadge,
-  hasProductUrlSignal, detectProductMarkers, detectSoldOutFromHtml,
+  hasProductUrlSignal, hasStrongProductUrlSignal, detectProductMarkers, detectSoldOutFromHtml,
 } from "../scripts/lib/filters.mjs";
 
+test("強シグナル: 形状だけで商品と断定できるURL(オークション等)", () => {
+  assert.equal(hasStrongProductUrlSignal("https://page.auctions.yahoo.co.jp/jp/auction/u123456789"), true);
+  assert.equal(hasStrongProductUrlSignal("https://paypayfleamarket.yahoo.co.jp/item/z687820808"), true);
+  assert.equal(hasStrongProductUrlSignal("https://item.rakuten.co.jp/e-fellows5/12100134/"), true);
+  /* 弱い形状はマーカー必須(一覧誤入防止) */
+  assert.equal(hasStrongProductUrlSignal("https://pcwrap.com/products/computer-used"), false);
+  assert.equal(hasStrongProductUrlSignal("https://www.pc-koubou.jp/products/detail.php?product_id=1225988"), false);
+  assert.equal(hasStrongProductUrlSignal("https://item.rakuten.co.jp/pasonette/c/0000000141/"), false);
+});
 test("技術記事・ニュースサイトは候補から除外される", () => {
   // 実際に混入した事故URL
   assert.equal(isListingPage("https://pc.watch.impress.co.jp/docs/column/nishikawa/2064084.html"), true);
@@ -36,7 +45,6 @@ test("検索一覧・カテゴリページは候補から除外される", () =>
 
 test("正当な商品ページは通過する", () => {
   assert.equal(isListingPage("https://www.pc-koubou.jp/products/detail.php?product_id=1225988"), false);
-  assert.equal(isListingPage("https://jp.mercari.com/item/m14763685413"), false);
   assert.equal(isListingPage("https://paypayfleamarket.yahoo.co.jp/item/z726344624"), false);
   assert.equal(isListingPage("https://item.rakuten.co.jp/e-fellows5/12100134/"), false);
   assert.equal(isListingPage("https://www.dospara.co.jp/5shopping/detail.php/pr=191123/"), false);
@@ -71,7 +79,7 @@ test("extractPriceCandidates: script内JSON・本文から価格候補を収集"
 });
 
 test("buildQuery: GPU/RAM/価格/自由条件がクエリに反映される", async () => {
-  const { buildQuery, buildMarketQuery, buildStockQuery } = await import("../worker/src/core.mjs");
+  const { buildQuery, buildMarketQuery, buildStockQuery, buildAuctionQuery } = await import("../worker/src/core.mjs");
   const q = buildQuery({ gpu: "rtx3060-12", ram: 32, price: 110000, free: "SSD 1TB" });
   assert.ok(q.includes("RTX 3060 12GB"));
   assert.ok(q.includes("メモリ32GB以上"));
@@ -87,6 +95,9 @@ test("buildQuery: GPU/RAM/価格/自由条件がクエリに反映される", as
   const stock = buildStockQuery({ gpu: "rtx3060-12" });
   assert.ok(stock.includes("在庫あり") && stock.includes("販売中"));
   assert.ok(stock.includes("RTX 3060 12GB"));
+  /* オークション系: 生きた在庫が取れるヤフオクを明示的に狙う */
+  const auction = buildAuctionQuery({ gpu: "rtx3060-12" });
+  assert.ok(auction.includes("ヤフオク") && auction.includes("出品"));
 });
 
 test("楽天のカテゴリページ(/c/)は商品として扱わない(実事故)", () => {
@@ -96,6 +107,19 @@ test("楽天のカテゴリページ(/c/)は商品として扱わない(実事�
   // 商品ページは従来どおり通る
   assert.equal(hasProductUrlSignal("https://item.rakuten.co.jp/e-fellows5/12100134/"), true);
   assert.equal(isListingPage("https://item.rakuten.co.jp/e-fellows5/12100134/"), false);
+});
+
+test("メルカリは自動結果から除外される(SPAでサーバ側の在庫検証不能)", () => {
+  assert.equal(isListingPage("https://jp.mercari.com/item/m14763685413"), true);
+  assert.equal(isListingPage("https://jp.mercari.com/shops/product/2JZMYPreJaqjzDWXTDKbDy"), true);
+});
+
+test("URL形状だけでは商品ページとみなさない(実事故: pcwrap一覧)", () => {
+  /* /products/ 形状でも本文にog:product/JSON-LD Productが無ければ一覧として除外される設計。
+     判定関数はURL単体では false(除外しない)ため、採用条件は detectProductMarkers が担う。 */
+  const url = "https://pcwrap.com/products/computer-used";
+  assert.equal(hasProductUrlSignal(url), true); // 形状は商品風
+  assert.equal(detectProductMarkers("<html><body><h1>商品一覧 45件</h1></body></html>").isProduct, false); // 本文で落とす
 });
 
 test("diffBadge: 死リンクはNEWにならずsold_out優先", () => {
