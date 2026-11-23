@@ -299,7 +299,8 @@ export async function handleVerify(env, body) {
       env,
       "日本の中古PC商品ページ本文から、価格・スペック・販売中かを抽出・判定してください。\n" +
       `ページ本文中の価格表記候補: ${page.priceCandidates.join(" / ") || "(なし)"}\n\nページ本文:\n${page.text}\n\n` +
-      "page_price_yen は本文または候補から(税込優先)。売り切れ/販売終了なら sold_out=true。推測禁止。",
+      "page_price_yen は本文または候補から(税込優先)。売り切れ/販売終了なら sold_out=true。推測禁止。\n" +
+      "重要: この照合は『候補がnull(未取得)』の項目が多くあります。候補がnullの項目は不一致とせず、情報不足として扱ってください(noteに「未取得」と記載)。",
       {
         type: "OBJECT",
         properties: {
@@ -316,8 +317,10 @@ export async function handleVerify(env, body) {
     if (out.sold_out === true) {
       factcheck.verdict = "mismatch";
       factcheck.issues = ["売り切れ表示"];
-    } else if (out.note) {
-      factcheck.issues = [String(out.note).slice(0, 120)];
+    } else {
+      /* 照合は成功したが完全比較ではない → partial(未照合のままにしない) */
+      factcheck.verdict = "partial";
+      factcheck.issues = [out.note ? String(out.note).slice(0, 120) : "ページから価格・スペックの一部のみ取得(未取得項目あり)"];
     }
     const specs = {};
     if (out.gpu != null) specs.gpu = out.gpu;
