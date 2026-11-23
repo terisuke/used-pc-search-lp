@@ -12,6 +12,7 @@ function isListingPage(url) {
     const u = new URL(url);
     const h = u.hostname.replace(/^www\./, "");
     if (h === "search.rakuten.co.jp") return true;
+    if (h.endsWith("kakaku.com") && /^\/used\//.test(u.pathname)) return true;
     const p = u.pathname;
     if (/(^|\/)(search|closedsearch)(\/|$)/.test(p)) return true;
     if (/\/view\/category\//.test(p)) return true;
