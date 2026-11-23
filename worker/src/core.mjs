@@ -69,9 +69,11 @@ export function detectSoldOutFromHtml(rawHtml) {
     .replace(/<style[\s\S]*?<\/style>/gi, " ")
     .replace(/<[^>]+>/g, " ")
     .replace(/\s+/g, " ");
-  const hits = [...visibleText.matchAll(new RegExp(SOLD_OUT_RE.source, "gi"))].length;
+  /* 本文上部(メイン商品領域)のみ — おすすめ欄等の他商品ラベル誤検知を避ける */
+  const mainRegion = visibleText.slice(0, 4000);
+  const hits = [...mainRegion.matchAll(new RegExp(SOLD_OUT_RE.source, "gi"))].length;
   if (hits >= 2) return true;
-  if (hits === 1 && /(この商品|当商品|本商品)[^。]{0,40}(売り切れ|在庫切れ|完売|品切れ|SOLD)/i.test(visibleText)) return true;
+  if (hits === 1 && /(この商品|当商品|本商品)[^。]{0,40}(売り切れ|在庫切れ|完売|品切れ|SOLD)/i.test(mainRegion)) return true;
   if (/"availability"\s*:\s*"[^"]*OutOfStock/i.test(raw)) return true;
   if (/"status"\s*:\s*"sold_out"/i.test(raw)) return true;
   return false;
@@ -269,18 +271,25 @@ export async function handleSearch(env, body) {
           redirect: "follow",
           signal: AbortSignal.timeout(10_000),
         });
-        if (!res.ok) return { keep: signal && res.status !== 404, soldOut: false };
+        if (!res.ok) return { keep: signal && res.status !== 404, soldOut: false, reason: `http-${res.status}` };
         const buf = await res.arrayBuffer().then((b) => b.slice(0, 250_000));
         const raw = new TextDecoder("utf-8", { fatal: false }).decode(buf);
         const soldOut = detectSoldOutFromHtml(raw);
         const isProduct = detectProductMarkers(raw).isProduct;
-        return { keep: !soldOut && (signal || isProduct), soldOut };
+        return {
+          keep: !soldOut && (signal || isProduct),
+          soldOut,
+          reason: soldOut ? "soldout" : isProduct || signal ? "ok" : "not-product",
+        };
       } catch {
-        return { keep: signal, soldOut: false }; // 取得失敗時はURLシグナルのみで判断
+        return { keep: signal, soldOut: false, reason: "fetch-fail" }; // 取得失敗時はURLシグナルのみで判断
       }
     }));
     const top = top0.filter((_, i) => checks[i].keep).slice(0, 10);
     const soldOutAtSearch = checks.filter((c) => c.soldOut).length;
+    const removedReasons = top0
+      .map((it, i) => ({ url: it.url, keep: checks[i].keep, reason: checks[i].reason }))
+      .filter((x) => !x.keep);
     const statuses = await Promise.all(top.map((it) => httpStatus(it.url)));
     top.forEach((it, i) => { it.factcheck.http_status = statuses[i]; });
     const live = top.filter((it) => it.factcheck.http_status !== 404);
@@ -299,6 +308,7 @@ export async function handleSearch(env, body) {
         query,
         items: live,
         soldOutExcluded: soldOutAtSearch,
+        removed: removedReasons,
         note: "売り切れ(SOLD OUT/完売等)・404は除外して返します。価格・スペックは行ごとの照合(/verify)または次回の定期取得で補完されます",
       },
     };

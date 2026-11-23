@@ -104,9 +104,11 @@ export function detectSoldOutFromHtml(rawHtml) {
     .replace(/<style[\s\S]*?<\/style>/gi, " ")
     .replace(/<[^>]+>/g, " ")
     .replace(/\s+/g, " ");
-  const hits = [...visibleText.matchAll(new RegExp(SOLD_OUT_TEXT_RE.source, "gi"))].length;
+  /* 本文上部(メイン商品領域)のみを見る — おすすめ欄等の他商品の売り切れラベル誤検知を避ける */
+  const mainRegion = visibleText.slice(0, 4000);
+  const hits = [...mainRegion.matchAll(new RegExp(SOLD_OUT_TEXT_RE.source, "gi"))].length;
   if (hits >= 2) return true;
-  if (hits === 1 && /(この商品|当商品|本商品)[^。]{0,40}(売り切れ|在庫切れ|完売|品切れ|SOLD)/i.test(visibleText)) return true;
+  if (hits === 1 && /(この商品|当商品|本商品)[^。]{0,40}(売り切れ|在庫切れ|完売|品切れ|SOLD)/i.test(mainRegion)) return true;
   if (/"availability"\s*:\s*"[^"]*OutOfStock/i.test(raw)) return true;
   if (/"status"\s*:\s*"sold_out"/i.test(raw)) return true;
   return false;
