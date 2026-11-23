@@ -65,7 +65,15 @@ Strata等)をPerplexityで収集し、Geminiが `config/target-spec.json` 相当
 ```sh
 npm install
 cp node_modules/@picocss/pico/css/pico.min.css assets/css/pico.min.css
+npm test   # 自動テスト(node:test・依存追加なし)
 ```
+
+## 自動テスト (P4, `tests/`)
+
+`node --test`。実データで起きた事故を回帰テストとして固定:
+技術記事(pc.watch.impress等)・一覧/カテゴリページ(rakuten検索/dospara BR/kakaku used)の除外、
+正当な商品ページの通過、canonUrl(トラッキング除去・プロトコル検証)、価格候補抽出(本文+`<script>`内JSON)、
+死リンクbadge優先、worker/libフィルタ一致(parity)。CI: `.github/workflows/test.yml`(push/PR)。
 
 `assets/css/pico.min.css` は上記で vendoring したものを commit している
 （バージョンは package.json / package-lock.json を参照）。

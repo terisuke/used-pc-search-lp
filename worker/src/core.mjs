@@ -1,15 +1,28 @@
 // Workers非依存のコアロジック(node から直接テスト可能)
 // env: PERPLEXITY_API_KEY, GEMINI_API_KEY, GEMINI_MODEL(任意)
+// URLフィルタの真実源は scripts/lib/filters.mjs(テスト対象)。Workers bundlingを単純化するため
+// 同等ロジックをここに保持し、filter-parity テストが両者の一致を保証する。
 
 const UA = "used-pc-search-lp-worker/0.1 (+https://github.com/terisuke/used-pc-search-lp)";
+const MEDIA_HOSTS = [
+  "impress.co.jp", "itmedia.co.jp", "mynavi.jp", "gigazine.net",
+  "publickey.jp", "gihyo.jp", "ascii.jp", "pc.watch.impress.co.jp",
+];
 const BLOCK_HOSTS = [
   "youtube.com", "x.com", "twitter.com", "facebook.com", "instagram.com",
   "wikipedia.org", "note.com", "hatenablog.com", "qiita.com", "zenn.dev",
+  ...MEDIA_HOSTS,
 ];
+const isBlockedHost = (hostname) => {
+  const h = String(hostname || "").replace(/^www\./, "");
+  return BLOCK_HOSTS.some((b) => h === b || h.endsWith(`.${b}`));
+};
 
-function isListingPage(url) {
+export function isListingPage(url) {
   try {
     const u = new URL(url);
+    if (u.protocol !== "https:" && u.protocol !== "http:") return true;
+    if (isBlockedHost(u.hostname)) return true;
     const h = u.hostname.replace(/^www\./, "");
     if (h === "search.rakuten.co.jp") return true;
     if (h.endsWith("kakaku.com") && /^\/used\//.test(u.pathname)) return true;
@@ -17,6 +30,8 @@ function isListingPage(url) {
     if (/(^|\/)(search|closedsearch)(\/|$)/.test(p)) return true;
     if (/\/view\/category\//.test(p)) return true;
     if (/^\/(BR|SBR)\d+/.test(p)) return true;
+    if (/\/docs\/column\//.test(p)) return true;
+    if (/(^|\/)article(\/|$)/.test(p)) return true;
     return false;
   } catch {
     return true;
@@ -67,9 +82,13 @@ async function fetchPageText(url) {
       try { raw = new TextDecoder("shift_jis", { fatal: false }).decode(buf); } catch { /* keep */ }
     }
     /* SPA等の価格は<script>内JSONにあることがあるため、タグ除去前に価格候補を収集 */
-    const priceCandidates = [...raw.matchAll(/[¥￥]?\s?\d{1,3}(?:,\d{3})+|\b\d{4,6}\s?円/gi)]
-      .map((m) => m[0].trim())
-      .slice(0, 12);
+    const priceCandidates = [
+      ...new Set([
+        ...[...raw.matchAll(/[¥￥]?\s?\d{1,3}(?:,\d{3})+|\b\d{4,6}\s?円/gi)].map((m) => m[0].trim()),
+        ...[...raw.matchAll(/["']?(?:price|selling_?price|item_?price|amount)["']?\s*[:=]\s*"?[¥￥]?(\d{4,7})\b/gi)]
+          .map((m) => Number(m[1]).toLocaleString("en-US")),
+      ]),
+    ].slice(0, 12);
     const text = raw
       .replace(/<script[\s\S]*?<\/script>/gi, " ")
       .replace(/<style[\s\S]*?<\/style>/gi, " ")
