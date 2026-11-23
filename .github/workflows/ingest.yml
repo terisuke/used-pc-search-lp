@@ -2,7 +2,7 @@ name: ingest
 
 on:
   schedule:
-    - cron: "0 */2 * * *"
+    - cron: "17 */2 * * *" # 奇数分オフセット(毎時0分の混雑回避)
   workflow_dispatch:
 
 permissions:

@@ -405,7 +405,7 @@
           }
           /* 売り切れ検知された行はリアルタイム一覧から除外 */
           if (it.factcheck.verdict === "mismatch" &&
-              (it.factcheck.issues || []).some((s) => /売り切れ|在庫切れ|販売終了/.test(s))) {
+              (it.factcheck.issues || []).some((s) => /売り切れ|在庫切れ|販売終了|完売|品切れ|在庫なし|SOLD/i.test(s))) {
             state.items = state.items.filter((x) => x.id !== it.id);
           }
         }
@@ -515,6 +515,12 @@
       if (data.generated_at) {
         els.generatedAt.textContent = fmtDate(data.generated_at);
         els.generatedAt.setAttribute("datetime", data.generated_at);
+        /* 3時間以上更新が無い場合は正直に停滞を表示(定期実行の遅延・失敗の可視化) */
+        const ageMs = Date.now() - new Date(data.generated_at).getTime();
+        if (Number.isFinite(ageMs) && ageMs > 3 * 60 * 60 * 1000) {
+          $("stale-note").textContent = `更新が停滞しています(3時間以上)`;
+          $("stale-note").hidden = false;
+        }
       } else {
         els.generatedAt.textContent = "不明";
       }

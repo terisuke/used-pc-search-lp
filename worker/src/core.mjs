@@ -56,14 +56,19 @@ export function hasProductUrlSignal(url) {
   }
 }
 
+export const SOLD_OUT_RE = /SOLD\s*OUT|完売|品切れ|在庫なし|在庫切れ|売り切れ|販売終了|取り扱い(を)?終了|再入荷(待ち|予定)|"sold_?out"\s*[:=]|"status"\s*:\s*"sold/i;
+
 export function detectProductMarkers(rawHtml) {
   const s = String(rawHtml || "").slice(0, 400_000);
   const reasons = [];
   if (/"@type"\s*:\s*"?(Product|ProductModel)"?/i.test(s)) reasons.push("jsonld-product");
+  if (/"@type"\s*:\s*"?(ItemList|CollectionPage)"?/i.test(s)) reasons.push("jsonld-itemlist");
   if (/property=["']og:type["'][^>]*content=["']product["']/i.test(s) ||
       /content=["']product["'][^>]*property=["']og:type["']/i.test(s)) reasons.push("og-product");
   if (/カートに入れる|カートに追加|買い物かごに入れる|購入する/.test(s)) reasons.push("cart-cta");
-  const isProduct = reasons.includes("jsonld-product") || reasons.includes("og-product");
+  const isProduct =
+    reasons.includes("og-product") ||
+    (reasons.includes("jsonld-product") && !reasons.includes("jsonld-itemlist"));
   return { isProduct, reasons };
 }
 
@@ -110,6 +115,7 @@ async function fetchPageText(url) {
     if ((raw.match(/\uFFFD/g) || []).length > 40) {
       try { raw = new TextDecoder("shift_jis", { fatal: false }).decode(buf); } catch { /* keep */ }
     }
+    const soldOut = SOLD_OUT_RE.test(raw);
     /* SPA等の価格は<script>内JSONにあることがあるため、タグ除去前に価格候補を収集 */
     const priceCandidates = [
       ...new Set([
@@ -126,7 +132,7 @@ async function fetchPageText(url) {
       .replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&nbsp;/g, " ")
       .replace(/\s+/g, " ")
       .slice(0, 12_000);
-    return { text, priceCandidates };
+    return { text, priceCandidates, soldOut };
   } catch {
     return null;
   }
@@ -293,6 +299,12 @@ export async function handleVerify(env, body) {
     const page = await fetchPageText(url);
     if (!page) {
       factcheck.issues = ["ページ本文取得失敗"];
+      return { status: 200, body: { url, factcheck } };
+    }
+    /* 機械判定: SOLD OUT等の表記はモデルに委ねず即・売り切れ扱い(コードで決定) */
+    if (page.soldOut) {
+      factcheck.verdict = "mismatch";
+      factcheck.issues = ["売り切れ表示(SOLD OUT/完売等)"];
       return { status: 200, body: { url, factcheck } };
     }
     const out = await gemini(

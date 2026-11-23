@@ -7,7 +7,7 @@ import { createHash } from "node:crypto";
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import path from "node:path";
 import { z } from "zod";
-import { isListingPage, canonUrl, extractPriceCandidates, diffBadge, hasProductUrlSignal, detectProductMarkers } from "./lib/filters.mjs";
+import { isListingPage, canonUrl, extractPriceCandidates, diffBadge, hasProductUrlSignal, detectProductMarkers, SOLD_OUT_RE } from "./lib/filters.mjs";
 
 const ROOT = new URL("..", import.meta.url).pathname;
 const CFG = JSON.parse(await readFile(path.join(ROOT, "config/conditions.json"), "utf8"));
@@ -119,6 +119,7 @@ async function fetchText(url) {
     }
     /* SPA等では価格が <script> 内JSONにしか無いことがある → タグ除去前に価格候補を収集 */
     const priceCandidates = extractPriceCandidates(raw);
+    const soldOut = SOLD_OUT_RE.test(raw);
     const text = raw
       .replace(/<script[\s\S]*?<\/script>/gi, " ")
       .replace(/<style[\s\S]*?<\/style>/gi, " ")
@@ -127,7 +128,7 @@ async function fetchText(url) {
       .replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&nbsp;/g, " ")
       .replace(/\s+/g, " ")
       .slice(0, 15_000);
-    return { text, priceCandidates };
+    return { text, priceCandidates, soldOut };
   } catch {
     return null;
   }
@@ -233,6 +234,10 @@ async function verifyOne(item) {
   if (!page) {
     return { verdict: "partial", issues: ["ページ本文取得失敗(内容照合不可)"], page_price_yen: null, in_stock: null };
   }
+  /* 機械判定: SOLD OUT等はモデルに委ねず即・売り切れ(コードで決定) */
+  if (page.soldOut) {
+    return { verdict: "mismatch", issues: ["売り切れ表示(SOLD OUT/完売等)"], page_price_yen: null, in_stock: false };
+  }
   const { parsed } = await gemini(
     [{
       text:
@@ -243,6 +248,7 @@ async function verifyOne(item) {
         })}\n\nページ本文中の価格表記候補(スクリプト内JSON含むから収集): ${page.priceCandidates.join(" / ") || "(なし)"}\n\nページ本文:\n${page.text.slice(0, 12_000)}\n\n` +
         "page_price_yen は本文または価格候補から判断(税込優先、ない場合はnull)。候補の価格がnullで本文に価格がある場合は必ずpage_price_yenに入れる。" +
         "重要: 候補の項目がnull(未取得)の場合は『不一致』としない(情報不足としてpartial寄りに扱う)。乖離の判定は、候補に値があり本文と矛盾する場合のみ。" +
+        "SOLD OUT・完売・品切れ・在庫なし等の表記があれば sold_out=true とし verdict=mismatch。" +
         "判定: verified=主要項目(価格/GPU/メモリ)が一致 / partial=一部不一致または確認不能 " +
         "/ mismatch=重大な乖離または売り切れ・別商品。issuesは日本語で簡潔に(最大5件)。",
     }],
@@ -384,10 +390,10 @@ await mapPool(top, 3, async (it) => {
 let prev = null;
 try { prev = JSON.parse(await readFile(path.join(ROOT, "data/latest.json"), "utf8")).items; } catch { /* first run */ }
 
-/* 在庫切れは一覧に出さない: HTTP 404 に加え、最終判定(持ち越し含む)が売り切れ/在庫切れ/販売終了の行も除外(履歴側は維持) */
+/* 在庫切れは一覧に出さない: HTTP 404 に加え、最終判定(持ち越し含む)が売り切れ系の行も除外(履歴側は維持) */
 const isSoldOutContent = (factcheck) =>
   factcheck?.verdict === "mismatch" &&
-  (factcheck.issues || []).some((s) => /売り切れ|在庫切れ|販売終了/.test(s));
+  (factcheck.issues || []).some((s) => /売り切れ|在庫切れ|販売終了|完売|品切れ|在庫なし|SOLD/i.test(s));
 const keep = [...pcs];
 const itemsRaw = keep.map((it) => {
   const p = prev?.find((x) => x.id === it.id);

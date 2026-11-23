@@ -46,3 +46,12 @@ test("worker と lib の商品マーカー判定が一致する", () => {
     assert.equal(workerDetect(html).isProduct, libDetect(html).isProduct, `parity divergence (detectProductMarkers): ${html.slice(0, 40)}`);
   }
 });
+
+test("worker と lib の売り切れ判定が一致する", async () => {
+  const { SOLD_OUT_RE: workerRe } = await import("../worker/src/core.mjs");
+  const { SOLD_OUT_RE: libRe } = await import("../scripts/lib/filters.mjs");
+  const samples = ["SOLD OUT", "完売", "在庫あり", "カートに入れる", '{"status":"sold_out"}'];
+  for (const s of samples) {
+    assert.equal(workerRe.test(s), libRe.test(s), `parity divergence (SOLD_OUT_RE): ${s}`);
+  }
+});

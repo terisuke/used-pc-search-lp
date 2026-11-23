@@ -88,16 +88,26 @@ export function hasProductUrlSignal(url) {
   }
 }
 
+/* 売り切れの機械判定(SOLD OUT等)。モデル判定の漏れを補完し、単一商品ページでは十分信頼できる */
+export const SOLD_OUT_RE = /SOLD\s*OUT|完売|品切れ|在庫なし|在庫切れ|売り切れ|販売終了|取り扱い(を)?終了|再入荷(待ち|予定)|"sold_?out"\s*[:=]|"status"\s*:\s*"sold/i;
+export function detectSoldOutFromHtml(rawHtml) {
+  return SOLD_OUT_RE.test(String(rawHtml || "").slice(0, 400_000));
+}
+
 /* 本文からの商品マーカー判定(JSON-LD Product / og:type=product)。
-   カートボタンは一覧グリッドにも出るため単独では採用しない(誤検知防止)。 */
+   カートボタンは一覧グリッドにも出るため単独では採用しない(誤検知防止)。
+   一覧カテゴリはJSON-LD ItemListを持つため、Product+ItemList併存は一覧とみなす。 */
 export function detectProductMarkers(rawHtml) {
   const s = String(rawHtml || "").slice(0, 400_000);
   const reasons = [];
   if (/"@type"\s*:\s*"?(Product|ProductModel)"?/i.test(s)) reasons.push("jsonld-product");
+  if (/"@type"\s*:\s*"?(ItemList|CollectionPage)"?/i.test(s)) reasons.push("jsonld-itemlist");
   if (/property=["']og:type["'][^>]*content=["']product["']/i.test(s) ||
       /content=["']product["'][^>]*property=["']og:type["']/i.test(s)) reasons.push("og-product");
   if (/カートに入れる|カートに追加|買い物かごに入れる|購入する/.test(s)) reasons.push("cart-cta");
-  const isProduct = reasons.includes("jsonld-product") || reasons.includes("og-product");
+  const isProduct =
+    reasons.includes("og-product") ||
+    (reasons.includes("jsonld-product") && !reasons.includes("jsonld-itemlist"));
   return { isProduct, reasons };
 }
 

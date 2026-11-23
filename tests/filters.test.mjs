@@ -11,7 +11,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   isListingPage, canonUrl, extractPriceCandidates, diffBadge,
-  hasProductUrlSignal, detectProductMarkers,
+  hasProductUrlSignal, detectProductMarkers, detectSoldOutFromHtml,
 } from "../scripts/lib/filters.mjs";
 
 test("技術記事・ニュースサイトは候補から除外される", () => {
@@ -120,4 +120,17 @@ test("本文スニフ: JSON-LD Product / og:type=product で商品ページと�
   assert.equal(r.isProduct, false);
   assert.ok(r.reasons.includes("cart-cta"));
   assert.equal(detectProductMarkers("<html><body>ただの記事</body></html>").isProduct, false);
+  // カテゴリページ(Product+ItemList併存)も商品ページとしない(jawa.gg の実事故型)
+  const category = '<script type="application/ld+json">{"@type":"ItemList"}</script><script type="application/ld+json">{"@type":"Product"}</script>';
+  assert.equal(detectProductMarkers(category).isProduct, false);
+});
+
+test("売り切れの機械判定: 一目で分かるSOLD OUT表記をモデルに委ねない", () => {
+  assert.equal(detectSoldOutFromHtml('<div class="soldout">SOLD OUT</div>'), true);
+  assert.equal(detectSoldOutFromHtml("この商品は完売しました"), true);
+  assert.equal(detectSoldOutFromHtml("品切れ・再入荷待ち"), true);
+  assert.equal(detectSoldOutFromHtml("在庫なし"), true);
+  assert.equal(detectSoldOutFromHtml('window.__DATA__={"status":"sold_out"}'), true);
+  assert.equal(detectSoldOutFromHtml("在庫あり 今すぐ購入"), false);
+  assert.equal(detectSoldOutFromHtml("カートに入れる"), false);
 });
