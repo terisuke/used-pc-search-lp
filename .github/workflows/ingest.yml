@@ -57,6 +57,9 @@ jobs:
           ref: main
       - id: deployment
         uses: actions/configure-pages@v5
+      - name: bust asset cache
+        run: |
+          sed -i "s|assets/js/app.js|assets/js/app.js?v=${GITHUB_SHA:0:8}|g; s|assets/css/app.css|assets/css/app.css?v=${GITHUB_SHA:0:8}|g" index.html
       - uses: actions/upload-pages-artifact@v4
         with:
           path: .
