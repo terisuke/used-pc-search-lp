@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-23T05:12:54.756Z",
+  "generated_at": "2026-11-23T05:09:49.872Z",
   "source": "perplexity-search+gemini",
   "queries": [
     "中古 デスクトップPC RTX 3060 12GB 搭載 価格",
@@ -21,22 +21,23 @@
       "price_yen": 89000,
       "gpu": "RTX 3060",
       "gpu_vram_gb": 12,
-      "cpu": "i7-9700K",
+      "cpu": "i5-12600",
       "ram_gb": 32,
-      "storage": "SSD 512GB + HDD 1TB",
+      "storage": null,
       "rank": null,
       "updated_at": "2026-11-19",
       "factcheck": {
         "http_status": 200,
         "verdict": "partial",
-        "checked_at": "2026-11-23T05:13:39.775Z",
+        "checked_at": "2026-11-23T05:10:41.866Z",
         "issues": [
-          "ページ本文に価格や詳細スペックの記載がありません"
+          "商品ページの価格が確認できません",
+          "CPUやメモリ等の詳細スペックが確認できません"
         ]
       },
       "history": {
         "first_seen": "2026-11-23T04:49:12.604Z",
-        "last_seen": "2026-11-23T05:12:54.756Z",
+        "last_seen": "2026-11-23T05:09:49.872Z",
         "prev_price_yen": 89000,
         "badge": null
       }
@@ -62,7 +63,7 @@
       },
       "history": {
         "first_seen": "2026-11-23T04:49:12.604Z",
-        "last_seen": "2026-11-23T05:12:54.756Z",
+        "last_seen": "2026-11-23T05:09:49.872Z",
         "prev_price_yen": null,
         "badge": null
       }
@@ -77,7 +78,7 @@
       "gpu_vram_gb": null,
       "cpu": "Core i5 12400F",
       "ram_gb": 32,
-      "storage": "SSD 1TB",
+      "storage": "SSD1TB",
       "rank": "B",
       "updated_at": "2026-11-21",
       "factcheck": {
@@ -88,9 +89,9 @@
       },
       "history": {
         "first_seen": "2026-11-23T05:09:49.872Z",
-        "last_seen": "2026-11-23T05:12:54.756Z",
+        "last_seen": "2026-11-23T05:09:49.872Z",
         "prev_price_yen": null,
-        "badge": null
+        "badge": "new"
       }
     },
     {
@@ -114,8 +115,8 @@
       },
       "history": {
         "first_seen": "2026-11-23T04:49:12.604Z",
-        "last_seen": "2026-11-23T05:12:54.756Z",
-        "prev_price_yen": null,
+        "last_seen": "2026-11-23T05:09:49.872Z",
+        "prev_price_yen": 239980,
         "badge": null
       }
     },
@@ -133,16 +134,16 @@
       "rank": null,
       "updated_at": "2026-11-21",
       "factcheck": {
-        "http_status": 200,
+        "http_status": 403,
         "verdict": null,
         "checked_at": null,
         "issues": []
       },
       "history": {
         "first_seen": "2026-11-23T05:09:49.872Z",
-        "last_seen": "2026-11-23T05:12:54.756Z",
+        "last_seen": "2026-11-23T05:09:49.872Z",
         "prev_price_yen": null,
-        "badge": null
+        "badge": "new"
       }
     },
     {
@@ -159,16 +160,42 @@
       "rank": null,
       "updated_at": "2026-11-06",
       "factcheck": {
-        "http_status": 200,
+        "http_status": 403,
         "verdict": null,
         "checked_at": null,
         "issues": []
       },
       "history": {
         "first_seen": "2026-11-23T05:09:49.872Z",
-        "last_seen": "2026-11-23T05:12:54.756Z",
+        "last_seen": "2026-11-23T05:09:49.872Z",
         "prev_price_yen": null,
-        "badge": null
+        "badge": "new"
+      }
+    },
+    {
+      "id": "28e3a4aa6571",
+      "shop": "Jawa",
+      "title": "Intel 12GB VRAM Gaming PCs built by gamers - Jawa",
+      "url": "https://www.jawa.gg/shop/full-systems/12gb-gaming-pcs-intel~54c301-79b97f-7fa58",
+      "price_yen": null,
+      "gpu": null,
+      "gpu_vram_gb": null,
+      "cpu": null,
+      "ram_gb": null,
+      "storage": null,
+      "rank": null,
+      "updated_at": "2026-11-11",
+      "factcheck": {
+        "http_status": 403,
+        "verdict": null,
+        "checked_at": null,
+        "issues": []
+      },
+      "history": {
+        "first_seen": "2026-11-23T05:09:49.872Z",
+        "last_seen": "2026-11-23T05:09:49.872Z",
+        "prev_price_yen": null,
+        "badge": "new"
       }
     },
     {
@@ -192,35 +219,9 @@
       },
       "history": {
         "first_seen": "2026-11-23T05:09:49.872Z",
-        "last_seen": "2026-11-23T05:12:54.756Z",
+        "last_seen": "2026-11-23T05:09:49.872Z",
         "prev_price_yen": null,
-        "badge": null
-      }
-    },
-    {
-      "id": "28e3a4aa6571",
-      "shop": "jawa.gg",
-      "title": "Intel 12GB VRAM Gaming PCs built by gamers - Jawa",
-      "url": "https://www.jawa.gg/shop/full-systems/12gb-gaming-pcs-intel~54c301-79b97f-7fa58",
-      "price_yen": null,
-      "gpu": null,
-      "gpu_vram_gb": null,
-      "cpu": null,
-      "ram_gb": null,
-      "storage": null,
-      "rank": null,
-      "updated_at": "2026-11-11",
-      "factcheck": {
-        "http_status": 200,
-        "verdict": null,
-        "checked_at": null,
-        "issues": []
-      },
-      "history": {
-        "first_seen": "2026-11-23T05:09:49.872Z",
-        "last_seen": "2026-11-23T05:12:54.756Z",
-        "prev_price_yen": null,
-        "badge": null
+        "badge": "new"
       }
     }
   ]
