@@ -1,16 +1,17 @@
 {
-  "generated_at": "2026-11-23T05:12:54.756Z",
+  "generated_at": "2026-11-23T06:02:06.964Z",
   "source": "perplexity-search+gemini",
   "queries": [
     "中古 デスクトップPC RTX 3060 12GB 搭載 価格",
     "中古パソコン RTX 3060 12GB 中古 デスクトップ",
-    "中古 デスクトップPC VRAM 12GB以上 グラボ搭載"
+    "中古 デスクトップPC VRAM 12GB以上 グラボ搭載",
+    "中古 デスクトップPC 64GB メモリ グラフィックス搭載"
   ],
   "counts": {
-    "found": 10,
-    "live": 10,
-    "kept": 8,
-    "verified": 0
+    "found": 15,
+    "live": 15,
+    "kept": 13,
+    "verified": 2
   },
   "items": [
     {
@@ -29,16 +30,46 @@
       "factcheck": {
         "http_status": 200,
         "verdict": "partial",
-        "checked_at": "2026-11-23T05:13:39.775Z",
+        "checked_at": "2026-11-23T06:03:07.984Z",
         "issues": [
-          "ページ本文に価格や詳細スペックの記載がありません"
+          "ページ本文がスクリプト内のUI辞書データ途中で切れており、商品詳細や在庫状況を確認できない",
+          "候補価格(89,000円)が本文中に見当たらず価格を確認できない(70,000円や¥3,000等はUIテンプレート文言の値と思われるため除外)"
         ]
       },
       "history": {
         "first_seen": "2026-11-23T04:49:12.604Z",
-        "last_seen": "2026-11-23T05:12:54.756Z",
+        "last_seen": "2026-11-23T06:02:06.964Z",
         "prev_price_yen": 89000,
         "badge": null
+      }
+    },
+    {
+      "id": "c253c2de91bd",
+      "shop": "ショップ・インバース楽天市場店",
+      "title": "【楽天市場】中古 FRONTIER BTOパソコン FRGXB660/WS15/NTK Core i5 12400F 第12世代 メモリ32GB SSD1TB グラボ ゲーミング NVIDIA GeForce RTX 3060 Ti Win",
+      "url": "https://item.rakuten.co.jp/shop-inverse/80ys0008942/",
+      "price_yen": null,
+      "gpu": "NVIDIA GeForce RTX 3060 Ti",
+      "gpu_vram_gb": null,
+      "cpu": "Core i5-12400F 2.5GHz",
+      "ram_gb": 32,
+      "storage": "SSD1TB",
+      "rank": "B",
+      "updated_at": "2026-11-20",
+      "factcheck": {
+        "http_status": 200,
+        "verdict": "partial",
+        "checked_at": "2026-11-23T06:03:12.799Z",
+        "issues": [
+          "ページ本文から商品価格が確認できない(価格候補は2,000円・6,000円・8,000円のみでPC本体価格として特定不可、候補価格もnull)",
+          "ページ本文から在庫状況が確認できない"
+        ]
+      },
+      "history": {
+        "first_seen": "2026-11-23T06:02:06.964Z",
+        "last_seen": "2026-11-23T06:02:06.964Z",
+        "prev_price_yen": null,
+        "badge": "new"
       }
     },
     {
@@ -46,82 +77,63 @@
       "shop": "Yahoo!フリマ",
       "title": "連休特価 AI画像音楽生成に最適 RTX3060 VRAM12GB搭載 ゲーミングPC｜Yahoo!フリマ（旧PayPayフリマ）",
       "url": "https://paypayfleamarket.yahoo.co.jp/item/z726344624",
-      "price_yen": null,
-      "gpu": "GeForce RTX 3060",
+      "price_yen": 148800,
+      "gpu": "NVIDIA GeForce RTX 3060",
       "gpu_vram_gb": 12,
-      "cpu": "Core i5-11400",
+      "cpu": "Intel Core i5-11400",
       "ram_gb": 32,
       "storage": "約1.38TB",
       "rank": null,
-      "updated_at": "2026-11-21",
+      "updated_at": "2026-11-23",
       "factcheck": {
         "http_status": 200,
-        "verdict": null,
-        "checked_at": null,
-        "issues": []
+        "verdict": "verified",
+        "checked_at": "2026-11-23T06:03:00.927Z",
+        "issues": [],
+        "page_price_yen": 148800,
+        "price_filled_from_page": true
       },
       "history": {
         "first_seen": "2026-11-23T04:49:12.604Z",
-        "last_seen": "2026-11-23T05:12:54.756Z",
-        "prev_price_yen": null,
-        "badge": null
-      }
-    },
-    {
-      "id": "29462245dfd3",
-      "shop": "ショップ・インバース楽天市場店",
-      "title": "【楽天市場】【20%OFFクーポン】中古 FRONTIER BTOパソコン FRGXB660/WS15/NTK Core i5 12400F 第12世代 メモリ32GB SSD1TB グラボ ゲーミング NVIDIA GeForce RTX",
-      "url": "https://item.rakuten.co.jp/shop-inverse/80ys0008942/?variantId=80YS0008942",
-      "price_yen": null,
-      "gpu": "GeForce RTX 3060 Ti",
-      "gpu_vram_gb": null,
-      "cpu": "Core i5 12400F",
-      "ram_gb": 32,
-      "storage": "SSD 1TB",
-      "rank": "B",
-      "updated_at": "2026-11-21",
-      "factcheck": {
-        "http_status": 200,
-        "verdict": null,
-        "checked_at": null,
-        "issues": []
-      },
-      "history": {
-        "first_seen": "2026-11-23T05:09:49.872Z",
-        "last_seen": "2026-11-23T05:12:54.756Z",
+        "last_seen": "2026-11-23T06:02:06.964Z",
         "prev_price_yen": null,
         "badge": null
       }
     },
     {
       "id": "0fd348ebac39",
-      "shop": "pc-koubou.jp",
-      "title": "〔中古〕BTO DeskPC インテル® Core™ Ultra 7 プロセッサー ...",
+      "shop": "パソコン工房",
+      "title": "〔中古〕BTO DeskPC インテル® Core™ Ultra 7 プロセッサー 265/64GB/1TB M.2 SSD/GeForce RTX 5070 12GB/Windows11 Pro(MAR)",
       "url": "https://www.pc-koubou.jp/products/detail.php?product_id=1205250",
-      "price_yen": null,
-      "gpu": null,
-      "gpu_vram_gb": null,
-      "cpu": null,
-      "ram_gb": null,
-      "storage": null,
+      "price_yen": 239980,
+      "gpu": "GeForce RTX 5070",
+      "gpu_vram_gb": 12,
+      "cpu": "Core Ultra 7 265",
+      "ram_gb": 64,
+      "storage": "1TB M.2 SSD",
       "rank": null,
       "updated_at": "2026-11-21",
       "factcheck": {
         "http_status": 200,
-        "verdict": null,
-        "checked_at": null,
-        "issues": []
+        "verdict": "mismatch",
+        "checked_at": "2026-11-23T06:03:01.514Z",
+        "issues": [
+          "商品が在庫切れ",
+          "候補の価格が未設定（ページ価格は239,980円）"
+        ],
+        "page_price_yen": 239980,
+        "price_filled_from_page": true
       },
       "history": {
         "first_seen": "2026-11-23T04:49:12.604Z",
-        "last_seen": "2026-11-23T05:12:54.756Z",
+        "last_seen": "2026-11-23T06:02:06.964Z",
         "prev_price_yen": null,
         "badge": null
       }
     },
     {
       "id": "02fb6d731844",
-      "shop": "jawa.gg",
+      "shop": "Jawa",
       "title": "Nvidia 12GB VRAM Gaming PCs built by gamers - Jawa",
       "url": "https://www.jawa.gg/shop/full-systems/12gb-gaming-pcs-nvidia~24986f-54c301-7fa58",
       "price_yen": null,
@@ -131,7 +143,7 @@
       "ram_gb": null,
       "storage": null,
       "rank": null,
-      "updated_at": "2026-11-21",
+      "updated_at": "2026-11-23",
       "factcheck": {
         "http_status": 200,
         "verdict": null,
@@ -140,33 +152,7 @@
       },
       "history": {
         "first_seen": "2026-11-23T05:09:49.872Z",
-        "last_seen": "2026-11-23T05:12:54.756Z",
-        "prev_price_yen": null,
-        "badge": null
-      }
-    },
-    {
-      "id": "2546acfedeb0",
-      "shop": "jawa.gg",
-      "title": "12GB VRAM Gaming PCs built by gamers - jawa.gg",
-      "url": "https://www.jawa.gg/shop/full-systems/12gb-gaming-pcs~54c301-7fa58",
-      "price_yen": null,
-      "gpu": null,
-      "gpu_vram_gb": null,
-      "cpu": null,
-      "ram_gb": null,
-      "storage": null,
-      "rank": null,
-      "updated_at": "2026-11-06",
-      "factcheck": {
-        "http_status": 200,
-        "verdict": null,
-        "checked_at": null,
-        "issues": []
-      },
-      "history": {
-        "first_seen": "2026-11-23T05:09:49.872Z",
-        "last_seen": "2026-11-23T05:12:54.756Z",
+        "last_seen": "2026-11-23T06:02:06.964Z",
         "prev_price_yen": null,
         "badge": null
       }
@@ -192,16 +178,16 @@
       },
       "history": {
         "first_seen": "2026-11-23T05:09:49.872Z",
-        "last_seen": "2026-11-23T05:12:54.756Z",
+        "last_seen": "2026-11-23T06:02:06.964Z",
         "prev_price_yen": null,
         "badge": null
       }
     },
     {
-      "id": "28e3a4aa6571",
+      "id": "2546acfedeb0",
       "shop": "jawa.gg",
-      "title": "Intel 12GB VRAM Gaming PCs built by gamers - Jawa",
-      "url": "https://www.jawa.gg/shop/full-systems/12gb-gaming-pcs-intel~54c301-79b97f-7fa58",
+      "title": "12GB VRAM Gaming PCs built by gamers - jawa.gg",
+      "url": "https://www.jawa.gg/shop/full-systems/12gb-gaming-pcs~54c301-7fa58",
       "price_yen": null,
       "gpu": null,
       "gpu_vram_gb": null,
@@ -209,7 +195,7 @@
       "ram_gb": null,
       "storage": null,
       "rank": null,
-      "updated_at": "2026-11-11",
+      "updated_at": "2026-11-23",
       "factcheck": {
         "http_status": 200,
         "verdict": null,
@@ -218,9 +204,166 @@
       },
       "history": {
         "first_seen": "2026-11-23T05:09:49.872Z",
-        "last_seen": "2026-11-23T05:12:54.756Z",
+        "last_seen": "2026-11-23T06:02:06.964Z",
         "prev_price_yen": null,
         "badge": null
+      }
+    },
+    {
+      "id": "88aceb738d1b",
+      "shop": "pc.watch.impress.co.jp",
+      "title": "3年前のPCでも、安い中古のGeForce RTX 3060(12GB)積めばAIが遊べるゾ！",
+      "url": "https://pc.watch.impress.co.jp/docs/column/nishikawa/2064084.html",
+      "price_yen": null,
+      "gpu": "GeForce RTX 3060",
+      "gpu_vram_gb": 12,
+      "cpu": "Core i9-12900",
+      "ram_gb": null,
+      "storage": null,
+      "rank": null,
+      "updated_at": "2026-11-23",
+      "factcheck": {
+        "http_status": 200,
+        "verdict": null,
+        "checked_at": null,
+        "issues": []
+      },
+      "history": {
+        "first_seen": "2026-11-23T06:02:06.964Z",
+        "last_seen": "2026-11-23T06:02:06.964Z",
+        "prev_price_yen": null,
+        "badge": "new"
+      }
+    },
+    {
+      "id": "25559c5d0554",
+      "shop": "ジモティー",
+      "title": "【中古PC】Ryzen 9 3900X / 64GBメモリ / Quadro K620 / Win11 Pro (ちはや) 綱島のデスクトップパソコンの中古あげます・譲ります｜ジモティーで不用品の処分",
+      "url": "https://jmty.jp/kanagawa/sale-pcp/article-1te8th",
+      "price_yen": 70000,
+      "gpu": "NVIDIA Quadro K620",
+      "gpu_vram_gb": 2,
+      "cpu": "AMD Ryzen 9 3900X",
+      "ram_gb": 64,
+      "storage": "238GB",
+      "rank": null,
+      "updated_at": "2026-11-22",
+      "factcheck": {
+        "http_status": 200,
+        "verdict": "verified",
+        "checked_at": "2026-11-23T06:03:04.551Z",
+        "issues": [],
+        "page_price_yen": 70000
+      },
+      "history": {
+        "first_seen": "2026-11-23T06:02:06.964Z",
+        "last_seen": "2026-11-23T06:02:06.964Z",
+        "prev_price_yen": null,
+        "badge": "new"
+      }
+    },
+    {
+      "id": "fa208703bb44",
+      "shop": "パソコン工房",
+      "title": "〔中古〕BTO DeskPC Ryzen 7 7700/DDR5 64GB/1TB M.2 SSD + ...",
+      "url": "https://www.pc-koubou.jp/products/detail.php?product_id=1254782",
+      "price_yen": 279980,
+      "gpu": "GeForce RTX 4070 SUPER",
+      "gpu_vram_gb": 12,
+      "cpu": "Ryzen 7 7700",
+      "ram_gb": 64,
+      "storage": "1TB M.2 SSD + 2TB M.2 SSD",
+      "rank": null,
+      "updated_at": "2026-10-28",
+      "factcheck": {
+        "http_status": 200,
+        "verdict": null,
+        "checked_at": null,
+        "issues": []
+      },
+      "history": {
+        "first_seen": "2026-11-23T06:02:06.964Z",
+        "last_seen": "2026-11-23T06:02:06.964Z",
+        "prev_price_yen": null,
+        "badge": "new"
+      }
+    },
+    {
+      "id": "8a1d77e4ad60",
+      "shop": "パソコン工房",
+      "title": "FRONTIER 〔中古〕FRGHB760/WS921 インテル® Core™ i7-13700F プロセッサー/DDR4 64GB/1TB SSD + 2TB SSD/GeForce RTX 4070 Ti/Windows 11 Home",
+      "url": "https://www.pc-koubou.jp/products/detail.php?product_id=1261732",
+      "price_yen": 281980,
+      "gpu": "GeForce RTX 4070 Ti",
+      "gpu_vram_gb": null,
+      "cpu": "Core i7-13700F",
+      "ram_gb": 64,
+      "storage": "1TB SSD + 2TB SSD",
+      "rank": null,
+      "updated_at": "2026-11-04",
+      "factcheck": {
+        "http_status": 200,
+        "verdict": null,
+        "checked_at": null,
+        "issues": []
+      },
+      "history": {
+        "first_seen": "2026-11-23T06:02:06.964Z",
+        "last_seen": "2026-11-23T06:02:06.964Z",
+        "prev_price_yen": null,
+        "badge": "new"
+      }
+    },
+    {
+      "id": "7f6eec6e3c30",
+      "shop": "パソコン工房",
+      "title": "ノーブランド 〔中古〕BTO DeskPC AMD Ryzen9-7900X (12C24T)/64GB/2TB (SSD)/GeForce RTX4070 SUPER 12GB/Windows 11 Home 64bit（中古保証3ヶ月間",
+      "url": "https://www.pc-koubou.jp/products/detail.php?product_id=1159020",
+      "price_yen": 229980,
+      "gpu": "GeForce RTX4070 SUPER 12GB",
+      "gpu_vram_gb": 12,
+      "cpu": "AMD Ryzen9-7900X (12C24T)",
+      "ram_gb": 64,
+      "storage": "2TB (SSD)",
+      "rank": null,
+      "updated_at": "2026-11-03",
+      "factcheck": {
+        "http_status": 429,
+        "verdict": null,
+        "checked_at": null,
+        "issues": []
+      },
+      "history": {
+        "first_seen": "2026-11-23T06:02:06.964Z",
+        "last_seen": "2026-11-23T06:02:06.964Z",
+        "prev_price_yen": null,
+        "badge": "new"
+      }
+    },
+    {
+      "id": "b4d8f4f7d12c",
+      "shop": "パソコン工房",
+      "title": "ノーブランド 〔中古〕BTO DeskPC Ryzen 7 5800X/DDR4 64GB/1TB M.2 SSD/GeForce RTX 3080 10GB/Windows11 Pro(MAR)（中古保証3ヶ月間）",
+      "url": "https://www.pc-koubou.jp/products/detail.php?product_id=1222245",
+      "price_yen": 169980,
+      "gpu": "GeForce RTX 3080 10GB",
+      "gpu_vram_gb": 10,
+      "cpu": "Ryzen 7 5800X",
+      "ram_gb": 64,
+      "storage": "1TB M.2 SSD",
+      "rank": null,
+      "updated_at": "2026-11-01",
+      "factcheck": {
+        "http_status": 429,
+        "verdict": null,
+        "checked_at": null,
+        "issues": []
+      },
+      "history": {
+        "first_seen": "2026-11-23T06:02:06.964Z",
+        "last_seen": "2026-11-23T06:02:06.964Z",
+        "prev_price_yen": null,
+        "badge": "new"
       }
     }
   ]
