@@ -92,7 +92,7 @@
 
     <section aria-labelledby="rt-heading">
       <h2 id="rt-heading">リアルタイム検索</h2>
-      <p id="rt-note" class="legend">条件を指定して実行すると、最新の候補を取得して<b>下の一覧</b>に表示します（30秒程度かかることがあります）。</p>
+      <p id="rt-note" class="legend">条件を指定して実行すると、最新の候補を取得して<b>下の一覧</b>に表示します（30〜60秒程度かかることがあります）。</p>
       <form id="rt-form" aria-describedby="rt-note">
         <div class="grid">
           <label for="rt-gpu">GPU</label>
@@ -101,16 +101,16 @@
         </div>
         <div class="grid">
           <select id="rt-gpu" name="rt-gpu">
-            <option value="" selected>指定なし</option>
-            <option value="rtx3060-12">RTX 3060 12GB</option>
+            <option value="">指定なし</option>
+            <option value="rtx3060-12" selected>RTX 3060 12GB</option>
             <option value="vram12">VRAM 12GB以上</option>
             <option value="vram16">VRAM 16GB以上</option>
           </select>
           <select id="rt-price" name="rt-price">
-            <option value="" selected>指定なし</option>
+            <option value="">指定なし</option>
             <option value="90000">9万円</option>
             <option value="100000">10万円</option>
-            <option value="110000">11万円</option>
+            <option value="110000" selected>11万円</option>
           </select>
           <input type="text" id="rt-free" name="rt-free" placeholder="例: CPU第8世代以降 / SSD 1TB">
         </div>
