@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-23T11:38:25.184Z",
+  "generated_at": "2026-11-24T00:01:59.858Z",
   "source": "perplexity-search+gemini",
   "queries": [
     "中古 デスクトップPC RTX 3060 12GB 搭載 価格",
@@ -14,8 +14,8 @@
   "counts": {
     "found": 4,
     "live": 4,
-    "kept": 2,
-    "sold_out_excluded": 1,
+    "kept": 3,
+    "sold_out_excluded": 0,
     "verified": 0
   },
   "items": [
@@ -29,24 +29,25 @@
       "gpu_vram_gb": 12,
       "cpu": "Intel Core i5-11400",
       "ram_gb": 32,
-      "storage": "約1.38TB",
+      "storage": null,
       "rank": null,
       "updated_at": "2026-11-23",
       "factcheck": {
         "http_status": 200,
         "verdict": "partial",
-        "checked_at": "2026-11-23T11:39:07.063Z",
+        "checked_at": "2026-11-24T00:02:45.426Z",
         "issues": [
-          "候補データの価格が未取得(null)のため価格照合不可"
+          "候補データに価格が未設定（ページ価格：148,800円）",
+          "候補データにストレージが未設定（ページ表記：約1.38TB）"
         ],
         "page_price_yen": 148800,
         "price_filled_from_page": true
       },
       "history": {
         "first_seen": "2026-11-23T11:38:25.184Z",
-        "last_seen": "2026-11-23T11:38:25.184Z",
-        "prev_price_yen": null,
-        "badge": "new"
+        "last_seen": "2026-11-24T00:01:59.858Z",
+        "prev_price_yen": 148800,
+        "badge": null
       }
     },
     {
@@ -65,20 +66,50 @@
       "factcheck": {
         "http_status": 200,
         "verdict": "partial",
-        "checked_at": "2026-11-23T11:39:24.635Z",
+        "checked_at": "2026-11-24T00:03:00.900Z",
         "issues": [
-          "候補データの価格がnullのため価格の一致確認が不可（ページ上の本体価格候補は129,800円）",
-          "候補データのGPU VRAM容量がnullのため未確認",
-          "本文の日本語部分が文字化けしており在庫状況の明確な確認が不可"
+          "候補の価格(price_yen)が未取得のため照合不能(ページ候補価格は129,800円)"
         ],
         "page_price_yen": 129800,
         "price_filled_from_page": true
       },
       "history": {
         "first_seen": "2026-11-23T11:31:46.367Z",
-        "last_seen": "2026-11-23T11:38:25.184Z",
+        "last_seen": "2026-11-24T00:01:59.858Z",
         "prev_price_yen": 129800,
         "badge": null
+      }
+    },
+    {
+      "id": "573b0fa07c2a",
+      "shop": "じゃんぱら楽天市場店",
+      "title": "【楽天市場】【中古】MSI GeForce RTX 3060 VENTUS 2X 12G OC RTX3060(LHR)/12GB(GDDR6)/PCI-E【川崎】保証期間１週間：じゃんぱら楽天市場店",
+      "url": "https://item.rakuten.co.jp/janpara/72368536-72/",
+      "price_yen": 53980,
+      "gpu": "MSI GeForce RTX 3060 VENTUS 2X 12G OC",
+      "gpu_vram_gb": 12,
+      "cpu": null,
+      "ram_gb": null,
+      "storage": null,
+      "rank": null,
+      "updated_at": "2026-11-21",
+      "factcheck": {
+        "http_status": 200,
+        "verdict": "partial",
+        "checked_at": "2026-11-24T00:02:57.604Z",
+        "issues": [
+          "候補データの価格が未取得(null)のため価格一致を確認できない",
+          "ページ本文が文字化けしており一部内容の確認が困難",
+          "ページ本文から在庫状況を明確に確認できない"
+        ],
+        "page_price_yen": 53980,
+        "price_filled_from_page": true
+      },
+      "history": {
+        "first_seen": "2026-11-24T00:01:59.858Z",
+        "last_seen": "2026-11-24T00:01:59.858Z",
+        "prev_price_yen": null,
+        "badge": "new"
       }
     }
   ]
