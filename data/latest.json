@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-24T10:04:13.057Z",
+  "generated_at": "2026-11-24T20:42:36.977Z",
   "source": "perplexity-search+gemini",
   "queries": [
     "中古 デスクトップPC RTX 3060 12GB 搭載 価格",
@@ -12,10 +12,10 @@
     "ヤフオク 中古 デスクトップPC RTX 3060 出品"
   ],
   "counts": {
-    "found": 3,
-    "live": 3,
+    "found": 2,
+    "live": 2,
     "kept": 2,
-    "sold_out_excluded": 1,
+    "sold_out_excluded": 0,
     "verified": 0
   },
   "items": [
@@ -35,17 +35,18 @@
       "factcheck": {
         "http_status": 200,
         "verdict": "partial",
-        "checked_at": "2026-11-24T10:05:10.720Z",
+        "checked_at": "2026-11-24T20:43:30.316Z",
         "issues": [
-          "候補の価格が未取得(null)",
-          "ページ本文の日本語部分が文字化けしており在庫状況などの詳細が確認不能"
+          "候補データの価格が未取得(null)のため価格照合が不可",
+          "ページ本文に文字化けが多く在庫状況が確認不能",
+          "商品価格はスクリプト内価格候補から53980円と推定"
         ],
         "page_price_yen": 53980,
         "price_filled_from_page": true
       },
       "history": {
         "first_seen": "2026-11-24T00:01:59.858Z",
-        "last_seen": "2026-11-24T10:04:13.057Z",
+        "last_seen": "2026-11-24T20:42:36.977Z",
         "prev_price_yen": 53980,
         "badge": null
       }
@@ -66,20 +67,18 @@
       "factcheck": {
         "http_status": 200,
         "verdict": "partial",
-        "checked_at": "2026-11-24T10:05:07.673Z",
+        "checked_at": "2026-11-24T20:43:34.190Z",
         "issues": [
-          "候補の価格(price_yen)がnullのため価格の一致を確認できない",
-          "ページ本文の大部分が文字化けしている",
-          "在庫状況の表記がページ本文から確認できない"
+          "候補データの価格がnullのため価格の一致を確認できない(ページ上の価格候補は48980円など複数あり特定困難だが48980円が妥当と推定)"
         ],
         "page_price_yen": 48980,
         "price_filled_from_page": true
       },
       "history": {
         "first_seen": "2026-11-24T10:04:13.057Z",
-        "last_seen": "2026-11-24T10:04:13.057Z",
-        "prev_price_yen": null,
-        "badge": "new"
+        "last_seen": "2026-11-24T20:42:36.977Z",
+        "prev_price_yen": 48980,
+        "badge": null
       }
     }
   ]
