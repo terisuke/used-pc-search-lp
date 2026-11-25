@@ -1,0 +1,54 @@
+{
+  "generated_at": "2026-11-25T17:24:09.000Z",
+  "source": "perplexity-search+gemini",
+  "queries": [
+    "中古 デスクトップPC RTX 3060 12GB 搭載 価格",
+    "中古パソコン RTX 3060 12GB 中古 デスクトップ",
+    "中古 デスクトップPC VRAM 12GB以上 グラボ搭載",
+    "中古 デスクトップPC 64GB メモリ グラフィックス搭載",
+    "じゃんぱら 中古 デスクトップPC RTX 3060",
+    "イオシス 中古 デスクトップPC ゲーミング",
+    "ソフマップ 中古 デスクトップPC RTX",
+    "ヤフオク 中古 デスクトップPC RTX 3060 出品"
+  ],
+  "counts": {
+    "found": 3,
+    "live": 3,
+    "kept": 1,
+    "sold_out_excluded": 0,
+    "verified": 0
+  },
+  "items": [
+    {
+      "id": "573b0fa07c2a",
+      "shop": "じゃんぱら楽天市場店",
+      "title": "【楽天市場】【中古】MSI GeForce RTX 3060 VENTUS 2X 12G OC RTX3060(LHR)/12GB(GDDR6)/PCI-E【川崎】保証期間１週間：じゃんぱら楽天市場店",
+      "url": "https://item.rakuten.co.jp/janpara/72368536-72/",
+      "price_yen": 53980,
+      "gpu": "MSI GeForce RTX 3060 VENTUS 2X 12G OC",
+      "gpu_vram_gb": 12,
+      "cpu": null,
+      "ram_gb": null,
+      "storage": null,
+      "rank": null,
+      "updated_at": "2026-11-21",
+      "factcheck": {
+        "http_status": 200,
+        "verdict": "partial",
+        "checked_at": "2026-11-25T17:25:18.573Z",
+        "issues": [
+          "候補の価格(price_yen)が未取得のため価格の一致確認不可",
+          "ページ本文の日本語部分に文字化けがあり詳細や在庫状況が確認不能"
+        ],
+        "page_price_yen": 53980,
+        "price_filled_from_page": true
+      },
+      "history": {
+        "first_seen": "2026-11-24T00:01:59.858Z",
+        "last_seen": "2026-11-25T17:24:09.000Z",
+        "prev_price_yen": 53980,
+        "badge": null
+      }
+    }
+  ]
+}
