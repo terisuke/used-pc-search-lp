@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-24T20:42:36.977Z",
+  "generated_at": "2026-11-25T04:56:21.205Z",
   "source": "perplexity-search+gemini",
   "queries": [
     "中古 デスクトップPC RTX 3060 12GB 搭載 価格",
@@ -12,9 +12,9 @@
     "ヤフオク 中古 デスクトップPC RTX 3060 出品"
   ],
   "counts": {
-    "found": 2,
-    "live": 2,
-    "kept": 2,
+    "found": 3,
+    "live": 3,
+    "kept": 1,
     "sold_out_excluded": 0,
     "verified": 0
   },
@@ -35,49 +35,18 @@
       "factcheck": {
         "http_status": 200,
         "verdict": "partial",
-        "checked_at": "2026-11-24T20:43:30.316Z",
+        "checked_at": "2026-11-25T04:57:22.825Z",
         "issues": [
-          "候補データの価格が未取得(null)のため価格照合が不可",
-          "ページ本文に文字化けが多く在庫状況が確認不能",
-          "商品価格はスクリプト内価格候補から53980円と推定"
+          "候補の価格が未取得(null)のため価格の一致を確認できない",
+          "ページ本文の一部が文字化けしており在庫状況を確認できない"
         ],
         "page_price_yen": 53980,
         "price_filled_from_page": true
       },
       "history": {
         "first_seen": "2026-11-24T00:01:59.858Z",
-        "last_seen": "2026-11-24T20:42:36.977Z",
+        "last_seen": "2026-11-25T04:56:21.205Z",
         "prev_price_yen": 53980,
-        "badge": null
-      }
-    },
-    {
-      "id": "1ca56ab618fa",
-      "shop": "じゃんぱら楽天市場店",
-      "title": "【楽天市場】【中古】Palit GeForce RTX 3060 Dual OC (NE63060T19K9-190AD) RTX3060/12GB(GDDR6)/PCI-E【秋葉3号】保証期間１週間：じゃんぱら楽天市場店",
-      "url": "https://item.rakuten.co.jp/janpara/66427544-66/",
-      "price_yen": 48980,
-      "gpu": "GeForce RTX 3060",
-      "gpu_vram_gb": 12,
-      "cpu": null,
-      "ram_gb": null,
-      "storage": null,
-      "rank": null,
-      "updated_at": "2026-06-02",
-      "factcheck": {
-        "http_status": 200,
-        "verdict": "partial",
-        "checked_at": "2026-11-24T20:43:34.190Z",
-        "issues": [
-          "候補データの価格がnullのため価格の一致を確認できない(ページ上の価格候補は48980円など複数あり特定困難だが48980円が妥当と推定)"
-        ],
-        "page_price_yen": 48980,
-        "price_filled_from_page": true
-      },
-      "history": {
-        "first_seen": "2026-11-24T10:04:13.057Z",
-        "last_seen": "2026-11-24T20:42:36.977Z",
-        "prev_price_yen": 48980,
         "badge": null
       }
     }
