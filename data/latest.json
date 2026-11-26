@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-26T01:49:57.858Z",
+  "generated_at": "2026-11-26T11:02:20.223Z",
   "source": "perplexity-search+gemini",
   "queries": [
     "中古 デスクトップPC RTX 3060 12GB 搭載 価格",
@@ -15,7 +15,7 @@
     "found": 5,
     "live": 5,
     "kept": 1,
-    "sold_out_excluded": 2,
+    "sold_out_excluded": 3,
     "verified": 0
   },
   "items": [
@@ -35,17 +35,17 @@
       "factcheck": {
         "http_status": 200,
         "verdict": "partial",
-        "checked_at": "2026-11-26T01:50:58.887Z",
+        "checked_at": "2026-11-26T11:03:20.278Z",
         "issues": [
-          "候補の価格がnullのため価格の一致確認不可",
-          "ページ本文の一部に文字化けあり"
+          "候補の価格が未取得(null)のため価格一致を確認できない",
+          "本文に文字化けがあり在庫状況を明確に確認できない"
         ],
         "page_price_yen": 53980,
         "price_filled_from_page": true
       },
       "history": {
         "first_seen": "2026-11-24T00:01:59.858Z",
-        "last_seen": "2026-11-26T01:49:57.858Z",
+        "last_seen": "2026-11-26T11:02:20.223Z",
         "prev_price_yen": 53980,
         "badge": null
       }
