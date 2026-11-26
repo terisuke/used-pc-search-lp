@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-26T11:02:20.223Z",
+  "generated_at": "2026-11-26T21:42:37.912Z",
   "source": "perplexity-search+gemini",
   "queries": [
     "中古 デスクトップPC RTX 3060 12GB 搭載 価格",
@@ -14,11 +14,41 @@
   "counts": {
     "found": 5,
     "live": 5,
-    "kept": 1,
-    "sold_out_excluded": 3,
+    "kept": 2,
+    "sold_out_excluded": 2,
     "verified": 0
   },
   "items": [
+    {
+      "id": "bf143eacc1cb",
+      "shop": "mundanalibreria.web.hosting-01.inacap.cl",
+      "title": "中古PC GeForce RTX 3060 12GB ミニタワー",
+      "url": "https://mundanalibreria.web.hosting-01.inacap.cl/trial.php?e=542902994",
+      "price_yen": 34860,
+      "gpu": "GeForce RTX 3060",
+      "gpu_vram_gb": 12,
+      "cpu": null,
+      "ram_gb": null,
+      "storage": null,
+      "rank": null,
+      "updated_at": "2026-11-25",
+      "factcheck": {
+        "http_status": 200,
+        "verdict": "partial",
+        "checked_at": "2026-11-26T21:43:25.855Z",
+        "issues": [
+          "候補データのCPU・メモリ・ストレージが未取得(null)で主要項目の一部が確認不能",
+          "店舗在庫不足で取り寄せ注文の表記あり(配送は注文可能)"
+        ],
+        "page_price_yen": 34860
+      },
+      "history": {
+        "first_seen": "2026-11-26T21:42:37.912Z",
+        "last_seen": "2026-11-26T21:42:37.912Z",
+        "prev_price_yen": null,
+        "badge": "new"
+      }
+    },
     {
       "id": "573b0fa07c2a",
       "shop": "じゃんぱら楽天市場店",
@@ -35,17 +65,18 @@
       "factcheck": {
         "http_status": 200,
         "verdict": "partial",
-        "checked_at": "2026-11-26T11:03:20.278Z",
+        "checked_at": "2026-11-26T21:43:34.623Z",
         "issues": [
-          "候補の価格が未取得(null)のため価格一致を確認できない",
-          "本文に文字化けがあり在庫状況を明確に確認できない"
+          "候補データの価格がnullのため価格一致を確認できない（ページ価格候補は53,980円）",
+          "ページ本文から在庫状況を確認できない",
+          "ページ本文の一部に文字化けが含まれている"
         ],
         "page_price_yen": 53980,
         "price_filled_from_page": true
       },
       "history": {
         "first_seen": "2026-11-24T00:01:59.858Z",
-        "last_seen": "2026-11-26T11:02:20.223Z",
+        "last_seen": "2026-11-26T21:42:37.912Z",
         "prev_price_yen": 53980,
         "badge": null
       }
