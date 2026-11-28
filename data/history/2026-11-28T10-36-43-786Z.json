@@ -1,0 +1,22 @@
+{
+  "generated_at": "2026-11-28T10:36:43.786Z",
+  "source": "perplexity-search+gemini",
+  "queries": [
+    "中古 デスクトップPC RTX 3060 12GB 搭載 価格",
+    "中古パソコン RTX 3060 12GB 中古 デスクトップ",
+    "中古 デスクトップPC VRAM 12GB以上 グラボ搭載",
+    "中古 デスクトップPC 64GB メモリ グラフィックス搭載",
+    "じゃんぱら 中古 デスクトップPC RTX 3060",
+    "イオシス 中古 デスクトップPC ゲーミング",
+    "ソフマップ 中古 デスクトップPC RTX",
+    "ヤフオク 中古 デスクトップPC RTX 3060 出品"
+  ],
+  "counts": {
+    "found": 4,
+    "live": 4,
+    "kept": 0,
+    "sold_out_excluded": 3,
+    "verified": 0
+  },
+  "items": []
+}

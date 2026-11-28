@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-28T01:29:37.177Z",
+  "generated_at": "2026-11-28T10:36:43.786Z",
   "source": "perplexity-search+gemini",
   "queries": [
     "中古 デスクトップPC RTX 3060 12GB 搭載 価格",
@@ -15,7 +15,7 @@
     "found": 4,
     "live": 4,
     "kept": 0,
-    "sold_out_excluded": 4,
+    "sold_out_excluded": 3,
     "verified": 0
   },
   "items": []
