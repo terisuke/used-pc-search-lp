@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-27T16:49:00.986Z",
+  "generated_at": "2026-11-28T01:29:37.177Z",
   "source": "perplexity-search+gemini",
   "queries": [
     "中古 デスクトップPC RTX 3060 12GB 搭載 価格",
@@ -12,43 +12,11 @@
     "ヤフオク 中古 デスクトップPC RTX 3060 出品"
   ],
   "counts": {
-    "found": 5,
-    "live": 5,
-    "kept": 1,
-    "sold_out_excluded": 3,
+    "found": 4,
+    "live": 4,
+    "kept": 0,
+    "sold_out_excluded": 4,
     "verified": 0
   },
-  "items": [
-    {
-      "id": "573b0fa07c2a",
-      "shop": "じゃんぱら楽天市場店",
-      "title": "【楽天市場】【中古】MSI GeForce RTX 3060 VENTUS 2X 12G OC RTX3060(LHR)/12GB(GDDR6)/PCI-E【川崎】保証期間１週間：じゃんぱら楽天市場店",
-      "url": "https://item.rakuten.co.jp/janpara/72368536-72/",
-      "price_yen": 53980,
-      "gpu": "GeForce RTX 3060",
-      "gpu_vram_gb": 12,
-      "cpu": null,
-      "ram_gb": null,
-      "storage": null,
-      "rank": null,
-      "updated_at": "2026-11-21",
-      "factcheck": {
-        "http_status": 200,
-        "verdict": "partial",
-        "checked_at": "2026-11-27T16:49:55.533Z",
-        "issues": [
-          "候補の価格情報が未取得（ページ価格候補から53,980円を抽出）",
-          "ページ本文に文字化けがあり在庫状況の明記が確認できない"
-        ],
-        "page_price_yen": 53980,
-        "price_filled_from_page": true
-      },
-      "history": {
-        "first_seen": "2026-11-24T00:01:59.858Z",
-        "last_seen": "2026-11-27T16:49:00.986Z",
-        "prev_price_yen": 53980,
-        "badge": null
-      }
-    }
-  ]
+  "items": []
 }
